@@ -17,7 +17,7 @@
 #define PROGRAM_VERSION "prerelease (" VERSION_INFO ")"
 
 #define ABS(x) (((x)<0)?-(x):(x))
-#define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))d
+#define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))
 #define FLOOR(x) (floor((double)x))
 
 /* ROUND_BLOCK(x) rounds x to the next lowest multiple of BLOCK_DIM */

@@ -53,6 +53,12 @@ struct tile_t* tile_get(struct world_t *world, llong x, llong y)
 void block_swapout(struct block_t *block)
 {
     printf("swap out\n");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%08llu%08llu.block",
+             block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
+    FILE *f = fopen(buf, "w");
+    fwrite(block->tiles, ARRAYLEN(block->tiles), sizeof(struct tile_t), f);
+    fclose(f);
 }
 
 void block_purge(struct world_t *world)
