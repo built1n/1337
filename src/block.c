@@ -52,12 +52,36 @@ struct tile_t* tile_get(struct world_t *world, llong x, llong y)
 
 void block_swapout(struct block_t *block)
 {
-
+    printf("swap out\n");
 }
 
 void block_purge(struct world_t *world)
 {
-
+    /* iterate over the block list and remove any blocks outside of the "local" range */
+    struct block_t *iter = world->blocks;
+    struct block_t *prev = NULL;
+    llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
+    while(iter)
+    {
+        if(ABS(iter->coords.x - cam_x) > LOCAL_DIM * BLOCK_DIM ||
+           ABS(iter->coords.y - cam_y) > LOCAL_DIM * BLOCK_DIM)
+        {
+            struct block_t *next = iter->next;
+            block_swapout(iter);
+            if(!prev)
+                world->blocks = next;
+            else
+                prev->next = next;
+            free(iter);
+            iter = next;
+            --world->blocklen;
+        }
+        else
+        {
+            prev = iter;
+            iter = iter->next;
+        }
+    }
 }
 
 void block_add(struct world_t *world, struct block_t *block)
