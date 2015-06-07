@@ -1,5 +1,13 @@
 #include "globals.h"
 
+void gen_randomize(struct block_t *block)
+{
+    for(int i = 0; i < GEN_MAX_TREES; ++i)
+    {
+        block->tiles[rand()%BLOCK_DIM][rand()%BLOCK_DIM].sprite = SPRITE_TREE;
+    }
+}
+
 void generate_view(struct world_t *world)
 {
     struct camera_t *camera = &world->camera;
@@ -13,8 +21,16 @@ void generate_view(struct world_t *world)
         {
             if(!block_get(world, x, y))
             {
-                printf("adding block %d %d\n", x, y);
-                block_add(world, block_new(x, y));
+                struct block_t *loaded = block_load(x, y);
+                if(loaded)
+                    block_add(world, loaded);
+                else
+                {
+                    printf("load failed.\n");
+                    struct block_t *new = block_new(x, y);
+                    block_add(world, new);
+                    gen_randomize(new);
+                }
             }
         }
     }

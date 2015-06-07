@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -35,7 +36,13 @@ typedef long long llong;
 #define BLOCK_DIM 64
 
 /* a maximum of LOCAL_DIM * LOCAL_DIM * 4 blocks can be stored in RAM at once */
-#define LOCAL_DIM 3
+/* should be bigger than the camera size */
+#define LOCAL_DIM 2
+
+/* keep this small for now */
+#define MAX_SPRITES 32
+
+#define GEN_MAX_TREES 100
 
 enum sprite_t {
     SPRITE_EMPTY,
@@ -46,9 +53,6 @@ enum sprite_t {
 
 struct tile_t {
     enum sprite_t sprite;
-    union {
-        char data[16];
-    } data;
 };
 
 struct coords_t {
@@ -84,6 +88,9 @@ struct block_t *block_get(struct world_t*, llong, llong);
 
 /* creates a new block */
 struct block_t *block_new(llong, llong);
+
+/* tries to load a block from disk, returns NULL upon failure */
+struct block_t *block_load(llong, llong);
 
 /* appends a new block to the block list */
 void block_add(struct world_t*, struct block_t*);

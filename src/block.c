@@ -9,6 +9,36 @@ struct block_t *block_new(llong x, llong y)
     return block;
 }
 
+void block_swapout(struct block_t *block)
+{
+    printf("swap out\n");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%016llx%016llx.block",
+             block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
+    FILE *f = fopen(buf, "w");
+    if(fwrite(block->tiles, sizeof(block->tiles), 1, f) != 1)
+    {
+        fatal("failed to write block: %s", strerror(errno));
+    }
+    fclose(f);
+}
+
+struct block_t *block_load(llong x, llong y)
+{
+    printf("load block %lld, %lld\n", x, y);
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%016llx%016llx.block",
+             x / BLOCK_DIM, y / BLOCK_DIM);
+    FILE *f = fopen(buf, "r");
+    if(!f)
+        return NULL;
+    struct block_t *new = block_new(x, y);
+    if(fread(new->tiles, sizeof(new->tiles), 1, f) != 1)
+        fatal("block too short: %s", strerror(errno));
+    fclose(f);
+    return new;
+}
+
 /* gets the block starting at a coordinate */
 /* coords must be multiples of BLOCK_DIM */
 struct block_t *block_get(struct world_t *world, llong x, llong y)
@@ -34,8 +64,6 @@ struct tile_t* tile_get(struct world_t *world, llong x, llong y)
     llong block_x = ROUND_BLOCK(x);
     llong block_y = ROUND_BLOCK(y);
 
-    /* in C99, the sign of the remainder comes from the DIVIDEND */
-    /* we want a positive value, so take it's absolute value */
     llong tile_x = x - block_x;
     llong tile_y = y - block_y;
     //printf("%d, %d --> %d, %d + %d, %d\n", x, y,
@@ -50,27 +78,17 @@ struct tile_t* tile_get(struct world_t *world, llong x, llong y)
     return &block->tiles[tile_x][tile_y];
 }
 
-void block_swapout(struct block_t *block)
-{
-    printf("swap out\n");
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%08llu%08llu.block",
-             block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
-    FILE *f = fopen(buf, "w");
-    fwrite(block->tiles, ARRAYLEN(block->tiles), sizeof(struct tile_t), f);
-    fclose(f);
-}
-
 void block_purge(struct world_t *world)
 {
+    printf("purging block list");
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = world->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
     while(iter)
     {
-        if(ABS(iter->coords.x - cam_x) > LOCAL_DIM * BLOCK_DIM ||
-           ABS(iter->coords.y - cam_y) > LOCAL_DIM * BLOCK_DIM)
+        if((ABS(iter->coords.x - cam_x) > LOCAL_DIM * BLOCK_DIM ||
+            ABS(iter->coords.y - cam_y) > LOCAL_DIM * BLOCK_DIM))
         {
             struct block_t *next = iter->next;
             block_swapout(iter);
@@ -98,5 +116,4 @@ void block_add(struct world_t *world, struct block_t *block)
     {
         block_purge(world);
     }
-    printf("blocklen %d\n", world->blocklen);
 }
