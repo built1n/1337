@@ -4,7 +4,8 @@ void gen_randomize(struct block_t *block)
 {
     for(int i = 0; i < GEN_MAX_TREES; ++i)
     {
-        block->tiles[rand()%BLOCK_DIM][rand()%BLOCK_DIM].sprite = SPRITE_TREE;
+        block->tiles[rand() % BLOCK_DIM][rand() % BLOCK_DIM].sprite =
+            (rand() % 2 == 0) ? SPRITE_ROCK : SPRITE_TREE;
     }
 }
 
