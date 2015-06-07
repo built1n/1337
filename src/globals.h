@@ -45,10 +45,10 @@ typedef long long llong;
 #define GEN_MAX_TREES 100
 
 enum sprite_t {
-    SPRITE_EMPTY,
+    SPRITE_GRASS = 0,
+    SPRITE_ROCK,
     SPRITE_TREE,
-    SPRITE_WALL,
-    SPRITE_ENEMY,
+    SPRITE_PLAYER,
 };
 
 struct tile_t {
@@ -66,6 +66,8 @@ struct block_t {
 };
 
 struct player_t {
+    struct coords_t pos;
+    enum sprite_t sprite;
 };
 
 struct camera_t {
