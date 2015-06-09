@@ -18,8 +18,14 @@ bool player_move(struct world_t *world, llong dx, llong dy)
         world->player.pos.x += dx;
         world->player.pos.y += dy;
 
-        world->camera.pos.x += dx;
-        world->camera.pos.y += dy;
+        if(world->player.pos.x <= world->camera.pos.x + SCROLL_DISTANCE ||
+           world->player.pos.y <= world->camera.pos.y + SCROLL_DISTANCE ||
+           world->player.pos.x >= world->camera.pos.x + world->camera.size.x - SCROLL_DISTANCE ||
+           world->player.pos.y >= world->camera.pos.y + world->camera.size.y - SCROLL_DISTANCE)
+        {
+            world->camera.pos.x += dx;
+            world->camera.pos.y += dy;
+        }
         return true;
     }
     else

@@ -51,6 +51,10 @@ typedef long long llong;
 
 #define GEN_MAX_TREES 100
 
+/* distance in tiles from the edge of the screen the player needs to be for the
+   camera to scroll */
+#define SCROLL_DISTANCE 5
+
 enum sprite_t {
     SPRITE_GRASS = 0,
     SPRITE_ROCK1,
