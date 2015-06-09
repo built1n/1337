@@ -33,7 +33,6 @@ void render(struct world_t *world, SDL_Renderer *rend)
             back = tile->background;
             if(x == player->pos.x && y == player->pos.y)
             {
-                printf("draw player at %d, %d\n", x, y);
                 sprite = player->sprite;
             }
 
@@ -45,6 +44,8 @@ void render(struct world_t *world, SDL_Renderer *rend)
 
 int main(int argc, char *argv[])
 {
+    (void) argc;
+    (void) argv;
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
