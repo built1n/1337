@@ -49,7 +49,7 @@ typedef long long llong;
 /* keep this small for now */
 #define MAX_SPRITES 32
 
-#define GEN_MAX_TREES 0
+#define GEN_MAX_TREES 100
 
 enum sprite_t {
     SPRITE_GRASS = 0,
