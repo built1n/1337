@@ -14,17 +14,40 @@ struct block_t *block_new(llong x, llong y)
     return block;
 }
 
+#define GZIP_CHUNK 256
+
 void block_swapout(struct block_t *block)
 {
+    z_stream out;
+    out.zalloc = Z_NULL;
+    out.zfree = Z_NULL;
+    out.opaque = Z_NULL;
+    if(deflateInit(&out, Z_DEFAULT_COMPRESSION) != Z_OK)
+    {
+        fatal("failed to open gzip stream for output");
+    }
+
     printf("swap out\n");
     char buf[64];
     snprintf(buf, sizeof(buf), "%016llx%016llx.block",
              block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
     FILE *f = fopen(buf, "w");
-    if(fwrite(block->tiles, sizeof(block->tiles), 1, f) != 1)
-    {
-        fatal("failed to write block: %s", strerror(errno));
-    }
+
+    char outbuf[GZIP_CHUNK];
+
+    out.avail_in = sizeof(block->tiles);
+    out.next_in = block->tiles;
+    do {
+        out.avail_out = GZIP_CHUNK;
+        out.next_out = outbuf;
+        assert(deflate(&out, Z_FINISH) != Z_STREAM_ERROR);
+        size_t have = GZIP_CHUNK - out.avail_out;
+        if(fwrite(outbuf, 1, have, f) != have || ferror(f))
+            fatal("file I/O error");
+    } while (out.avail_in > 0);
+
+    deflateEnd(&out);
+
     fclose(f);
 }
 
@@ -38,8 +61,48 @@ struct block_t *block_load(llong x, llong y)
     if(!f)
         return NULL;
     struct block_t *new = block_new(x, y);
-    if(fread(new->tiles, sizeof(new->tiles), 1, f) != 1)
-        fatal("block too short: %s", strerror(errno));
+
+    z_stream in;
+    in.zalloc = Z_NULL;
+    in.zfree = Z_NULL;
+    in.opaque = Z_NULL;
+    in.avail_in = 0;
+    in.next_in = Z_NULL;
+
+    if(inflateInit(&in) != Z_OK)
+        fatal("failed to open gzip stream");
+
+    char inbuf[GZIP_CHUNK];
+    int ret;
+    char *out = new->tiles;
+
+    do {
+        in.avail_in = fread(inbuf, 1, GZIP_CHUNK, f);
+        if(!in.avail_in)
+            break;
+        in.next_in = inbuf;
+
+        in.avail_out = GZIP_CHUNK;
+        in.next_out = out;
+        ret = inflate(&in, Z_NO_FLUSH);
+
+        assert(ret != Z_STREAM_ERROR);
+
+        switch(ret)
+        {
+        case Z_NEED_DICT:
+            ret = Z_DATA_ERROR; /* and fall through */
+        case Z_DATA_ERROR:
+        case Z_MEM_ERROR:
+            inflateEnd(&in);
+            fatal("gzip memory error");
+        }
+        size_t have = GZIP_CHUNK - in.avail_out;
+        out += have;
+    } while (ret != Z_STREAM_END);
+
+    inflateEnd(&in);
+
     fclose(f);
     return new;
 }

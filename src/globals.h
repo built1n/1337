@@ -1,9 +1,12 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <SDL2/SDL.h>
+
+#include <zlib.h>
 
 /* some terminology:
    tile: contains a sprite and properties
@@ -21,6 +24,9 @@
 #define ABS(x) (((x)<0)?-(x):(x))
 #define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))
 #define FLOOR(x) (floor((double)x))
+
+#define LCD_WIDTH 1024
+#define LCD_HEIGHT 768
 
 /* ROUND_BLOCK(x) rounds x to the next lowest multiple of BLOCK_DIM */
 #define ROUND_BLOCK(x) (FLOOR((x)/BLOCK_DIM)*BLOCK_DIM)
@@ -43,7 +49,7 @@ typedef long long llong;
 /* keep this small for now */
 #define MAX_SPRITES 32
 
-#define GEN_MAX_TREES 100
+#define GEN_MAX_TREES 0
 
 enum sprite_t {
     SPRITE_GRASS = 0,
