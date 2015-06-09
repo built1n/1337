@@ -13,7 +13,7 @@ CFLAGS = -Isrc/ -O2 -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(GIT_VERSION)\
 PREFIX = /usr
 BINDIR = $(PREFIX)/bin
 
-LIBS = -lm -lSDL2
+LIBS = -lm -lSDL2 -lz
 
 HEADERS := $(wildcard src/*.h)
 

@@ -54,14 +54,14 @@ int main(int argc, char *argv[])
 
     SDL_Window *window = NULL;
     SDL_Renderer *rend = NULL;
-    if(SDL_CreateWindowAndRenderer(640, 480, 0, &window, &rend) < 0)
+    if(SDL_CreateWindowAndRenderer(LCD_WIDTH, LCD_HEIGHT, 0, &window, &rend) < 0)
         fatal("SDL init failed: %s", SDL_GetError());
     SDL_SetWindowTitle(window, PROGRAM_NAME);
 
     atexit(SDL_Quit);
 
-    world->camera.size.x = 640/32;
-    world->camera.size.y = 480/32;
+    world->camera.size.x = LCD_WIDTH/32;
+    world->camera.size.y = LCD_HEIGHT/32;
     world->camera.pos.x = 0;
     world->camera.pos.y = 0;
     world->player.sprite = SPRITE_PLAYER;
@@ -95,6 +95,9 @@ int main(int argc, char *argv[])
                     break;
                 case SDLK_DOWN:
                     player_move(world, 0, 1);
+                    break;
+                case SDLK_p:
+                    block_purge(world);
                     break;
                 }
             }
