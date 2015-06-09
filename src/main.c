@@ -85,20 +85,16 @@ int main(int argc, char *argv[])
                 switch(ev.key.keysym.sym)
                 {
                 case SDLK_LEFT:
-                    world->camera.pos.x += 1;
-                    world->player.pos.x += 1;
+                    player_move(world, 1, 0);
                     break;
                 case SDLK_RIGHT:
-                    world->camera.pos.x -= 1;
-                    world->player.pos.x -= 1;
+                    player_move(world, -1, 0);
                     break;
                 case SDLK_UP:
-                    world->camera.pos.y -= 1;
-                    world->player.pos.y -= 1;
+                    player_move(world, 0, -1);
                     break;
                 case SDLK_DOWN:
-                    world->camera.pos.y += 1;
-                    world->player.pos.y += 1;
+                    player_move(world, 0, 1);
                     break;
                 }
             }

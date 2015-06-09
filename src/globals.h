@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -69,7 +70,11 @@ struct block_t {
 };
 
 struct player_t {
+    /* in tiles */
     struct coords_t pos;
+
+    /* in pixels */
+    struct coords_t offset;
     enum sprite_t sprite;
 };
 
@@ -86,6 +91,8 @@ struct world_t {
 };
 
 uint obstacles[4];
+
+void fatal(const char*, ...);
 
 /* gets a tile */
 struct tile_t *tile_get(struct world_t*, llong, llong);
@@ -108,4 +115,4 @@ void block_purge(struct world_t*);
 /* generates the blocks the camera can see */
 void generate_view(struct world_t*);
 
-void fatal(const char*, ...);
+bool player_move(struct world_t *world, llong dx, llong dy);
