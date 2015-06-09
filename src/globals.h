@@ -46,13 +46,15 @@ typedef long long llong;
 
 enum sprite_t {
     SPRITE_GRASS = 0,
-    SPRITE_ROCK,
-    SPRITE_TREE,
+    SPRITE_ROCK1,
+    SPRITE_TREE1,
     SPRITE_PLAYER,
+    SPRITE_TREE2,
 };
 
 struct tile_t {
     enum sprite_t sprite;
+    enum sprite_t background;
 };
 
 struct coords_t {
@@ -81,6 +83,8 @@ struct world_t {
     struct player_t player;
     struct camera_t camera;
 };
+
+uint obstacles[3];
 
 /* gets a tile */
 struct tile_t *tile_get(struct world_t*, llong, llong);

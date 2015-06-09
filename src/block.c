@@ -4,6 +4,11 @@ struct block_t *block_new(llong x, llong y)
 {
     struct block_t *block = malloc(sizeof(struct block_t));
     memset(block, 0, sizeof(struct block_t));
+    for(uint i = 0; i < ARRAYLEN(block->tiles); ++i)
+    {
+        ((struct tile_t*)(block->tiles))[i].background = SPRITE_GRASS;
+    }
+
     block->coords.x = x;
     block->coords.y = y;
     return block;
