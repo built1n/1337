@@ -9,11 +9,14 @@ void sprite_draw(enum sprite_t sprite, int x, int y, SDL_Renderer *rend)
         printf("load sprite %d\n", sprite);
         char spritename[32];
         snprintf(spritename, sizeof(spritename), "sprites/%d.bmp", sprite);
-        sprites[sprite] = SDL_CreateTextureFromSurface(rend, SDL_LoadBMP(spritename));
+        SDL_Surface *surf = SDL_LoadBMP(spritename);
+        uint32_t colorkey = SDL_MapRGB(surf->format, 0xFF, 0x00, 0xFF);
+        SDL_SetColorKey(surf, SDL_TRUE, colorkey);
+        sprites[sprite] = SDL_CreateTextureFromSurface(rend, surf);
     }
 
     const SDL_Rect srcrect = { 0, 0, 32, 32 };
-    const SDL_Rect dstrect = { x * 32, y * 32, 32, 32 };
+    const SDL_Rect dstrect = { x, y, 32, 32 };
     SDL_RenderCopy(rend, sprites[sprite], &srcrect, &dstrect);
 }
 
@@ -24,15 +27,18 @@ void render(struct world_t *world, SDL_Renderer *rend)
     for(llong x = camera->pos.x + camera->size.x, i = 0; x >= camera->pos.x; --x, ++i)
         for(llong y = camera->pos.y, j = 0; y < camera->pos.y + camera->size.y; ++y, ++j)
         {
-            enum sprite_t sprite;
-            sprite = tile_get(world, x, y)->sprite;
+            enum sprite_t sprite, back;
+            struct tile_t *tile = tile_get(world, x, y);
+            sprite = tile->sprite;
+            back = tile->background;
             if(x == player->pos.x && y == player->pos.y)
             {
                 printf("draw player at %d, %d\n", x, y);
                 sprite = player->sprite;
             }
 
-            sprite_draw(sprite, i, j, rend);
+            sprite_draw(back, i * 32, j * 32, rend);
+            sprite_draw(sprite, i * 32, j * 32, rend);
         }
     SDL_RenderPresent(rend);
 }
