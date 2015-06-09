@@ -33,10 +33,10 @@ void block_swapout(struct block_t *block)
              block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
     FILE *f = fopen(buf, "w");
 
-    char outbuf[GZIP_CHUNK];
+    unsigned char outbuf[GZIP_CHUNK];
 
     out.avail_in = sizeof(block->tiles);
-    out.next_in = block->tiles;
+    out.next_in = (uchar*)block->tiles;
     do {
         out.avail_out = GZIP_CHUNK;
         out.next_out = outbuf;
@@ -72,9 +72,9 @@ struct block_t *block_load(llong x, llong y)
     if(inflateInit(&in) != Z_OK)
         fatal("failed to open gzip stream");
 
-    char inbuf[GZIP_CHUNK];
+    unsigned char inbuf[GZIP_CHUNK];
     int ret;
-    char *out = new->tiles;
+    uchar *out = (uchar*)new->tiles;
 
     do {
         in.avail_in = fread(inbuf, 1, GZIP_CHUNK, f);
