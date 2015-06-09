@@ -50,6 +50,7 @@ enum sprite_t {
     SPRITE_TREE1,
     SPRITE_PLAYER,
     SPRITE_TREE2,
+    SPRITE_TREE3,
 };
 
 struct tile_t {
@@ -84,7 +85,7 @@ struct world_t {
     struct camera_t camera;
 };
 
-uint obstacles[3];
+uint obstacles[4];
 
 /* gets a tile */
 struct tile_t *tile_get(struct world_t*, llong, llong);
