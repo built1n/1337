@@ -107,6 +107,8 @@ uint obstacles[4];
 
 void fatal(const char*, ...);
 
+extern uint window_width, window_height;
+
 /* gets a tile */
 struct tile_t *tile_get(struct world_t*, llong, llong);
 
