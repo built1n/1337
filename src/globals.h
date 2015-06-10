@@ -132,5 +132,9 @@ void generate_view(struct world_t*);
 
 bool player_move(struct world_t *world, llong dx, llong dy);
 
+void render(struct world_t *world, SDL_Renderer*);
+
+void putsxy(SDL_Renderer*, int, int, const char*, ...);
+
 uint64_t myrand(void);
 void mysrand(uint64_t);

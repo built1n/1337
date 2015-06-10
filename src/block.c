@@ -186,7 +186,6 @@ void block_purgeall(struct world_t *world)
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = world->blocks;
     struct block_t *prev = NULL;
-    llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
     while(iter)
     {
         struct block_t *next = iter->next;
