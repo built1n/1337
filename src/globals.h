@@ -28,11 +28,11 @@
 #define FLOOR(x) (floor((double)x))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
-#define LCD_WIDTH 1024
-#define LCD_HEIGHT 768
+#define LCD_WIDTH 1920
+#define LCD_HEIGHT 1200
 
 /* ROUND_BLOCK(x) rounds x to the next lowest multiple of BLOCK_DIM */
-#define ROUND_BLOCK(x) (FLOOR((x)/BLOCK_DIM)*BLOCK_DIM)
+#define ROUND_BLOCK(x) (llong)((FLOOR((x)/BLOCK_DIM)*BLOCK_DIM))
 
 typedef unsigned long long ullong;
 typedef unsigned long ulong;
