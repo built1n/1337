@@ -41,6 +41,8 @@ void render(struct world_t *world, SDL_Renderer *rend)
         }
 
     putsxy(rend, 0, 0, "pos: (%lld, %lld)", player->pos.x, player->pos.y);
+    putsxy(rend, 0, 16, "block: (%d, %d)", ROUND_BLOCK(player->pos.x), ROUND_BLOCK(player->pos.y));
+    putsxy(rend, 0, 32, "blocklen: %d", world->blocklen);
     SDL_RenderPresent(rend);
 }
 
