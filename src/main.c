@@ -55,6 +55,7 @@ void on_resize(struct world_t *world)
 {
     world->camera.size.x = window_width/32;
     world->camera.size.y = window_height/32;
+    printf("window resized to %d %d\n", world->camera.size.x, world->camera.size.y);
 }
 
 int main(int argc, char *argv[])
@@ -130,11 +131,16 @@ int main(int argc, char *argv[])
                     break;
                 }
                 break;
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-                window_width = ev.window.data1;
-                window_height = ev.window.data2;
-                on_resize(world);
-                SDL_RenderPresent(rend);
+            case SDL_WINDOWEVENT:
+                switch(ev.window.event)
+                {
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                    window_width = ev.window.data1;
+                    window_height = ev.window.data2;
+                    on_resize(world);
+                    SDL_RenderPresent(rend);
+                    break;
+                }
                 break;
             }
         }
