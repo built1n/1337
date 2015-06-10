@@ -29,21 +29,32 @@ void render(struct world_t *world, SDL_Renderer *rend)
         {
             enum sprite_t sprite, back;
             struct tile_t *tile = tile_get(world, x, y);
-            sprite = tile->sprite;
-            back = tile->background;
-            if(x == player->pos.x && y == player->pos.y)
+            if(tile)
             {
-                sprite = player->sprite;
-            }
+                sprite = tile->sprite;
+                back = tile->background;
+                if(x == player->pos.x && y == player->pos.y)
+                {
+                    sprite = player->sprite;
+                }
 
-            sprite_draw(back, i * 32, j * 32, rend);
-            sprite_draw(sprite, i * 32, j * 32, rend);
+                sprite_draw(back, i * 32, j * 32, rend);
+                sprite_draw(sprite, i * 32, j * 32, rend);
+            }
         }
 
     putsxy(rend, 0, 0, "pos: (%lld, %lld)", player->pos.x, player->pos.y);
     putsxy(rend, 0, 16, "block: (%d, %d)", ROUND_BLOCK(player->pos.x), ROUND_BLOCK(player->pos.y));
     putsxy(rend, 0, 32, "blocklen: %d", world->blocklen);
     SDL_RenderPresent(rend);
+}
+
+uint window_width, window_height;
+
+void on_resize(struct world_t *world)
+{
+    world->camera.size.x = window_width/32;
+    world->camera.size.y = window_height/32;
 }
 
 int main(int argc, char *argv[])
@@ -67,14 +78,19 @@ int main(int argc, char *argv[])
 
     SDL_Window *window = NULL;
     SDL_Renderer *rend = NULL;
-    if(SDL_CreateWindowAndRenderer(LCD_WIDTH, LCD_HEIGHT, 0, &window, &rend) < 0)
-        fatal("SDL failed to create window: %s", SDL_GetError());
-    SDL_SetWindowTitle(window, PROGRAM_NAME);
+    window = SDL_CreateWindow(PROGRAM_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                              LCD_WIDTH, LCD_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    rend = SDL_CreateRenderer(window, -1,
+                              SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+
+    window_width = LCD_WIDTH;
+    window_height = LCD_HEIGHT;
+
+    on_resize(world);
 
     atexit(SDL_Quit);
 
-    world->camera.size.x = LCD_WIDTH/32;
-    world->camera.size.y = LCD_HEIGHT/32;
     world->camera.pos.x = 0;
     world->camera.pos.y = 0;
     world->player.sprite = SPRITE_PLAYER;
@@ -113,6 +129,13 @@ int main(int argc, char *argv[])
                     block_purgeall(world);
                     break;
                 }
+                break;
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                window_width = ev.window.data1;
+                window_height = ev.window.data2;
+                on_resize(world);
+                SDL_RenderPresent(rend);
+                break;
             }
         }
     }
