@@ -4,8 +4,8 @@ void gen_randomize(struct block_t *block)
 {
     for(int i = 0; i < GEN_MAX_TREES; ++i)
     {
-        block->tiles[rand() % BLOCK_DIM][rand() % BLOCK_DIM].sprite =
-            obstacles[rand() % ARRAYLEN(obstacles)];
+        block->tiles[myrand() % BLOCK_DIM][myrand() % BLOCK_DIM].sprite =
+            obstacles[myrand() % ARRAYLEN(obstacles)];
     }
 }
 
