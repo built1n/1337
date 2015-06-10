@@ -152,7 +152,7 @@ struct tile_t* tile_get(struct world_t *world, llong x, llong y)
 
 void block_purge(struct world_t *world)
 {
-    printf("purging block list");
+    printf("purging block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = world->blocks;
     struct block_t *prev = NULL;
@@ -177,6 +177,27 @@ void block_purge(struct world_t *world)
             prev = iter;
             iter = iter->next;
         }
+    }
+}
+
+void block_purgeall(struct world_t *world)
+{
+    printf("purging entire block list\n");
+    /* iterate over the block list and remove any blocks outside of the "local" range */
+    struct block_t *iter = world->blocks;
+    struct block_t *prev = NULL;
+    llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
+    while(iter)
+    {
+        struct block_t *next = iter->next;
+        block_swapout(iter);
+        if(!prev)
+            world->blocks = next;
+        else
+            prev->next = next;
+        free(iter);
+        iter = next;
+        --world->blocklen;
     }
 }
 

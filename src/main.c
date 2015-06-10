@@ -39,6 +39,8 @@ void render(struct world_t *world, SDL_Renderer *rend)
             sprite_draw(back, i * 32, j * 32, rend);
             sprite_draw(sprite, i * 32, j * 32, rend);
         }
+
+    putsxy(rend, 0, 0, "pos: (%lld, %lld)", player->pos.x, player->pos.y);
     SDL_RenderPresent(rend);
 }
 
@@ -56,10 +58,15 @@ int main(int argc, char *argv[])
         fatal("SDL init failed: %s", SDL_GetError());
     }
 
+    if(TTF_Init() < 0)
+    {
+        fatal("TTF init failed: %s", TTF_GetError());
+    }
+
     SDL_Window *window = NULL;
     SDL_Renderer *rend = NULL;
     if(SDL_CreateWindowAndRenderer(LCD_WIDTH, LCD_HEIGHT, 0, &window, &rend) < 0)
-        fatal("SDL init failed: %s", SDL_GetError());
+        fatal("SDL failed to create window: %s", SDL_GetError());
     SDL_SetWindowTitle(window, PROGRAM_NAME);
 
     atexit(SDL_Quit);
@@ -101,7 +108,7 @@ int main(int argc, char *argv[])
                     player_move(world, 0, 1);
                     break;
                 case SDLK_p:
-                    block_purge(world);
+                    block_purgeall(world);
                     break;
                 }
             }
