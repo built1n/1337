@@ -46,6 +46,9 @@ int main(int argc, char *argv[])
 {
     (void) argc;
     (void) argv;
+
+    mysrand(42);
+
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)

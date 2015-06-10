@@ -75,6 +75,7 @@ struct block_t *block_load(llong x, llong y)
     unsigned char inbuf[GZIP_CHUNK];
     int ret;
     uchar *out = (uchar*)new->tiles;
+    size_t avail = sizeof(new->tiles);
 
     do {
         in.avail_in = fread(inbuf, 1, GZIP_CHUNK, f);
@@ -82,23 +83,26 @@ struct block_t *block_load(llong x, llong y)
             break;
         in.next_in = inbuf;
 
-        in.avail_out = GZIP_CHUNK;
-        in.next_out = out;
-        ret = inflate(&in, Z_NO_FLUSH);
+        do {
+            in.avail_out = MIN(GZIP_CHUNK, avail);
+            in.next_out = out;
+            ret = inflate(&in, Z_NO_FLUSH);
 
-        assert(ret != Z_STREAM_ERROR);
+            assert(ret != Z_STREAM_ERROR);
 
-        switch(ret)
-        {
-        case Z_NEED_DICT:
-            ret = Z_DATA_ERROR; /* and fall through */
-        case Z_DATA_ERROR:
-        case Z_MEM_ERROR:
-            inflateEnd(&in);
-            fatal("gzip memory error");
-        }
-        size_t have = GZIP_CHUNK - in.avail_out;
-        out += have;
+            switch(ret)
+            {
+            case Z_NEED_DICT:
+                ret = Z_DATA_ERROR; /* and fall through */
+            case Z_DATA_ERROR:
+            case Z_MEM_ERROR:
+                inflateEnd(&in);
+                fatal("gzip memory error");
+            }
+            size_t have = GZIP_CHUNK - in.avail_out;
+            out += have;
+            avail -= have;
+        } while (in.avail_out == 0);
     } while (ret != Z_STREAM_END);
 
     inflateEnd(&in);

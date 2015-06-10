@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,6 +25,7 @@
 #define ABS(x) (((x)<0)?-(x):(x))
 #define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))
 #define FLOOR(x) (floor((double)x))
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define LCD_WIDTH 1024
 #define LCD_HEIGHT 768
@@ -126,3 +128,6 @@ void block_purge(struct world_t*);
 void generate_view(struct world_t*);
 
 bool player_move(struct world_t *world, llong dx, llong dy);
+
+uint64_t myrand(void);
+void mysrand(uint64_t);
