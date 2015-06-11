@@ -4,7 +4,7 @@ struct block_t *block_new(llong x, llong y)
 {
     struct block_t *block = malloc(sizeof(struct block_t));
     memset(block, 0, sizeof(struct block_t));
-    for(uint i = 0; i < ARRAYLEN(block->tiles); ++i)
+    for(uint i = 0; i < BLOCK_DIM*BLOCK_DIM; ++i)
     {
         ((struct tile_t*)(block->tiles))[i].background = SPRITE_GRASS;
     }
@@ -14,10 +14,48 @@ struct block_t *block_new(llong x, llong y)
     return block;
 }
 
-#define GZIP_CHUNK 256
+void block_update(struct block_t *block)
+{
+    struct anim_tilelist *iter = block->anim_tiles;
+    while(iter)
+    {
+        struct tile_t *tile = &(block->tiles[iter->coords.x][iter->coords.y]);
+        tile->sprite = (tile->data.anim.frame++ % anim_data[tile->data.anim.type_idx].len) +
+            anim_data[tile->data.anim.type_idx].start;
+        iter = iter->next;
+    }
+}
+
+#define GZIP_CHUNK 0x1000
 
 void block_swapout(struct block_t *block)
 {
+    printf("swap out\n");
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%016llx%016llx.block",
+             block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
+    FILE *f = fopen(buf, "w");
+
+    struct anim_tilelist *iter = block->anim_tiles;
+    while(iter)
+    {
+        printf("writing anim tile data record\n");
+        /* FIXME: assumes sizeof(llong) = 8 */
+        unsigned char buf[16];
+        assert(sizeof(llong) * 2 == 16);
+        memcpy(buf, &iter->coords.x, sizeof(llong));
+        memcpy(buf + 8, &iter->coords.y, sizeof(llong));
+        if(fwrite(buf, 1, sizeof(buf), f) != sizeof(buf) || ferror(f))
+            fatal("file I/O error");
+        iter = iter->next;
+    }
+
+    llong marker = 0x7FFFFFFFFFFFFFFF;
+    fwrite(&marker, 1, sizeof(marker), f);
+    fwrite(&marker, 1, sizeof(marker), f);
+
+    unsigned char *outbuf = malloc(GZIP_CHUNK);
+
     z_stream out;
     out.zalloc = Z_NULL;
     out.zfree = Z_NULL;
@@ -26,14 +64,6 @@ void block_swapout(struct block_t *block)
     {
         fatal("failed to open gzip stream for output");
     }
-
-    printf("swap out\n");
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%016llx%016llx.block",
-             block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
-    FILE *f = fopen(buf, "w");
-
-    unsigned char outbuf[GZIP_CHUNK];
 
     out.avail_in = sizeof(block->tiles);
     out.next_in = (uchar*)block->tiles;
@@ -47,6 +77,7 @@ void block_swapout(struct block_t *block)
     } while (out.avail_in > 0);
 
     deflateEnd(&out);
+    free(outbuf);
 
     fclose(f);
 }
@@ -54,13 +85,41 @@ void block_swapout(struct block_t *block)
 struct block_t *block_load(llong x, llong y)
 {
     printf("load block %lld, %lld\n", x, y);
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%016llx%016llx.block",
+    char filename[64];
+    snprintf(filename, sizeof(filename), "%016llx%016llx.block",
              x / BLOCK_DIM, y / BLOCK_DIM);
-    FILE *f = fopen(buf, "r");
+    FILE *f = fopen(filename, "r");
     if(!f)
         return NULL;
     struct block_t *new = block_new(x, y);
+
+    unsigned char buf[16];
+
+    /* read in the linked list of animated tiles */
+    while(1)
+    {
+        assert(sizeof(llong) * 2 == 16);
+        if(fread(buf, 1, sizeof(buf), f) != sizeof(buf) || ferror(f))
+            fatal("file I/O error");
+        struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
+        node->next = new->anim_tiles;
+        node->coords.x = *((llong*)buf);
+        node->coords.y = *(((llong*)buf + 1));
+        assert(node->coords.x < BLOCK_DIM);
+        assert(node->coords.x >= 0);
+        assert(node->coords.y < BLOCK_DIM);
+        assert(node->coords.y >= 0);
+
+        if(node->coords.x == 0x7FFFFFFFFFFFFFFF &&
+           node->coords.y == 0x7FFFFFFFFFFFFFFF)
+        {
+            printf("encountered sentinel value\n");
+            free(node);
+            break;
+        }
+        printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
+        new->anim_tiles = node;
+    }
 
     z_stream in;
     in.zalloc = Z_NULL;
@@ -72,7 +131,7 @@ struct block_t *block_load(llong x, llong y)
     if(inflateInit(&in) != Z_OK)
         fatal("failed to open gzip stream");
 
-    unsigned char inbuf[GZIP_CHUNK];
+    unsigned char *inbuf = malloc(GZIP_CHUNK);
     int ret;
     uchar *out = (uchar*)new->tiles;
     size_t avail = sizeof(new->tiles);
@@ -106,6 +165,7 @@ struct block_t *block_load(llong x, llong y)
     } while (ret != Z_STREAM_END);
 
     inflateEnd(&in);
+    free(inbuf);
 
     fclose(f);
     return new;
