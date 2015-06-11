@@ -48,15 +48,24 @@ int main(int argc, char *argv[])
     world->player.pos.x = 8;
     world->player.pos.y = 8;
 
+    int elapsed = 0;
     while(1)
     {
         generate_view(world);
         render(world, rend);
 
         SDL_Event ev;
-        SDL_WaitEvent(NULL);
+        int before = SDL_GetTicks();
+        SDL_WaitEventTimeout(NULL, 100);
+        elapsed += SDL_GetTicks() - before;
+        if(elapsed >= 100)
+        {
+            elapsed = 0;
+            animate_view(world);
+        }
         while(SDL_PollEvent(&ev))
         {
+            before = SDL_GetTicks();
             switch(ev.type)
             {
             case SDL_QUIT:
@@ -97,6 +106,12 @@ int main(int argc, char *argv[])
                     break;
                 }
                 break;
+            }
+            elapsed += SDL_GetTicks() - before;
+            if(elapsed >= 100)
+            {
+                elapsed = 0;
+                animate_view(world);
             }
         }
     }

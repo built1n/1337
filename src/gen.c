@@ -7,6 +7,18 @@ void gen_randomize(struct block_t *block)
         block->tiles[myrand() % BLOCK_DIM][myrand() % BLOCK_DIM].sprite =
             obstacles[myrand() % ARRAYLEN(obstacles)];
     }
+
+    uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;
+    struct tile_t *tile = &(block->tiles[enemy_x][enemy_y]);
+    tile->sprite = enemies[myrand() % ARRAYLEN(enemies)];
+    tile->data.anim.frame = 0;
+    tile->data.anim.type_idx = anim_find(tile->sprite);
+
+    struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
+    node->next = block->anim_tiles;
+    node->coords.x = enemy_x;
+    node->coords.y = enemy_y;
+    block->anim_tiles = node;
 }
 
 void generate_view(struct world_t *world)
@@ -20,17 +32,18 @@ void generate_view(struct world_t *world)
             y <= ROUND_BLOCK(camera->pos.y + camera->size.y + BLOCK_DIM);
             y += BLOCK_DIM)
         {
-            if(!block_get(world, x, y))
+            struct block_t *block = block_get(world, x, y);
+            if(!block)
             {
-                struct block_t *loaded = block_load(x, y);
-                if(loaded)
-                    block_add(world, loaded);
+                block = block_load(x, y);
+                if(block)
+                    block_add(world, block);
                 else
                 {
                     printf("load failed.\n");
-                    struct block_t *new = block_new(x, y);
-                    block_add(world, new);
-                    gen_randomize(new);
+                    block = block_new(x, y);
+                    block_add(world, block);
+                    gen_randomize(block);
                 }
             }
         }

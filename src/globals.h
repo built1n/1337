@@ -65,19 +65,44 @@ enum sprite_t {
     SPRITE_PLAYER,
     SPRITE_TREE2,
     SPRITE_TREE3,
+    SPRITE_ENEMY1_FRAME1,
+    SPRITE_ENEMY1_FRAME2,
+    SPRITE_ENEMY1_FRAME3,
+    SPRITE_ENEMY1_FRAME4
+};
+
+struct anim_def_t {
+    enum sprite_t start;
+    uint len;
+};
+
+struct anim_t {
+    uchar frame;
+
+    /* index in anim_data */
+    uint type_idx;
 };
 
 struct tile_t {
     enum sprite_t sprite;
     enum sprite_t background;
+    union {
+        struct anim_t anim;
+    } data;
 };
 
 struct coords_t {
     llong x, y;
 };
 
+struct anim_tilelist {
+    struct coords_t coords;
+    struct anim_tilelist *next;
+};
+
 struct block_t {
     struct tile_t tiles[BLOCK_DIM][BLOCK_DIM];
+    struct anim_tilelist *anim_tiles;
     struct coords_t coords;
     struct block_t *next;
 };
@@ -101,9 +126,12 @@ struct world_t {
     uint blocklen;
     struct player_t player;
     struct camera_t camera;
+    SDL_mutex *mutex;
 };
 
-uint obstacles[4];
+enum sprite_t obstacles[4];
+enum sprite_t enemies[1];
+struct anim_def_t anim_data[1];
 
 void fatal(const char*, ...);
 
@@ -135,6 +163,15 @@ bool player_move(struct world_t *world, llong dx, llong dy);
 void render(struct world_t *world, SDL_Renderer*);
 
 void putsxy(SDL_Renderer*, int, int, const char*, ...);
+
+uint anim_find(enum sprite_t);
+
+struct callback_data {
+    struct world_t *world;
+    SDL_Renderer *rend;
+};
+
+void animate_view(struct world_t*);
 
 uint64_t myrand(void);
 void mysrand(uint64_t);
