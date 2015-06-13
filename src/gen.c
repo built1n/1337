@@ -5,7 +5,7 @@ void gen_randomize(struct block_t *block)
     for(int i = 0; i < GEN_MAX_TREES; ++i)
     {
         block->tiles[myrand() % BLOCK_DIM][myrand() % BLOCK_DIM].sprite =
-            obstacles[myrand() % ARRAYLEN(obstacles)];
+            random_obstacles[myrand() % ARRAYLEN(random_obstacles)];
     }
 
     uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;

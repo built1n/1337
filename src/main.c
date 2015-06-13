@@ -4,8 +4,8 @@ uint window_width, window_height;
 
 void on_resize(struct world_t *world)
 {
-    world->camera.size.x = window_width/32;
-    world->camera.size.y = window_height/32;
+    world->camera.size.x = CEIL(window_width/32);
+    world->camera.size.y = CEIL(window_height/32);
 }
 
 int main(int argc, char *argv[])
@@ -92,6 +92,9 @@ int main(int argc, char *argv[])
                     block_purgeall(world);
                     break;
                 }
+                case SDLK_BACKQUOTE:
+                    console_enter(world, window, rend);
+                    break;
 #endif
                 }
                 break;

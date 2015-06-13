@@ -25,8 +25,10 @@
 
 #define ABS(x) (((x)<0)?-(x):(x))
 #define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))
+#define CEIL(x) (ceil((double)x))
 #define FLOOR(x) (floor((double)x))
 #define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (( (a) > (b) ) ? (a) : (b))
 
 #define LCD_WIDTH 1920
 #define LCD_HEIGHT 1200
@@ -129,7 +131,8 @@ struct world_t {
     SDL_mutex *mutex;
 };
 
-enum sprite_t obstacles[4];
+enum sprite_t obstacles[8];
+enum sprite_t random_obstacles[4];
 enum sprite_t enemies[1];
 struct anim_def_t anim_data[1];
 
@@ -175,3 +178,8 @@ void animate_view(struct world_t*);
 
 uint64_t myrand(void);
 void mysrand(uint64_t);
+
+void console_enter(struct world_t*, SDL_Window*, SDL_Renderer*);
+
+void vid_reset(void);
+void vid_printf(SDL_Window*, SDL_Renderer*, const char*, ...);
