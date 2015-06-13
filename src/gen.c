@@ -2,12 +2,22 @@
 
 void gen_randomize(struct block_t *block)
 {
+    uint64_t seed = 0;
+    /* use the lower 32 bits from each coordinate of the block */
+    seed |= (block->coords.x << 32) & 0xFFFFFFFF;
+    seed |= block->coords.y & 0xFFFFFFFF;
+
+    /* re-seed the RNG to make blocks the same across games */
+    mysrand(seed);
+
+    /* randomly place obstacles */
     for(int i = 0; i < GEN_MAX_TREES; ++i)
     {
         block->tiles[myrand() % BLOCK_DIM][myrand() % BLOCK_DIM].sprite =
             random_obstacles[myrand() % ARRAYLEN(random_obstacles)];
     }
 
+    /* add an animated enemy */
     uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;
     struct tile_t *tile = &(block->tiles[enemy_x][enemy_y]);
     tile->sprite = enemies[myrand() % ARRAYLEN(enemies)];

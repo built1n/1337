@@ -11,6 +11,10 @@ static uint64_t rand_state;
 
 void mysrand(uint64_t seed)
 {
+    if(!seed)
+    {
+        seed = RAND_C1;
+    }
     rand_state = seed;
 }
 

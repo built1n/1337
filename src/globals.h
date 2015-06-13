@@ -131,55 +131,32 @@ struct world_t {
     SDL_mutex *mutex;
 };
 
+extern uint window_width, window_height;
+
 enum sprite_t obstacles[8];
 enum sprite_t random_obstacles[4];
 enum sprite_t enemies[1];
 struct anim_def_t anim_data[1];
 
+/* utility functions */
 void fatal(const char*, ...);
-
-extern uint window_width, window_height;
-
-/* gets a tile */
-struct tile_t *tile_get(struct world_t*, llong, llong);
-
-/* gets a block */
-struct block_t *block_get(struct world_t*, llong, llong);
-
-/* creates a new block */
-struct block_t *block_new(llong, llong);
-
-/* tries to load a block from disk, returns NULL upon failure */
-struct block_t *block_load(llong, llong);
-
-/* appends a new block to the block list */
-void block_add(struct world_t*, struct block_t*);
-
-/* swaps old blocks to disk */
-void block_purge(struct world_t*);
-
-/* generates the blocks the camera can see */
-void generate_view(struct world_t*);
-
-bool player_move(struct world_t *world, llong dx, llong dy);
-
-void render(struct world_t *world, SDL_Renderer*);
-
-void putsxy(SDL_Renderer*, int, int, const char*, ...);
-
-uint anim_find(enum sprite_t);
-
-struct callback_data {
-    struct world_t *world;
-    SDL_Renderer *rend;
-};
-
-void animate_view(struct world_t*);
-
+void vid_printf(SDL_Window*, SDL_Renderer*, const char*, ...);
+void vid_reset(void);
 uint64_t myrand(void);
 void mysrand(uint64_t);
 
+/* game-related functions */
+bool player_move(struct world_t *world, llong dx, llong dy);
+struct block_t *block_get(struct world_t*, llong, llong);
+struct block_t *block_load(llong, llong);
+struct block_t *block_new(llong, llong);
+struct tile_t *tile_get(struct world_t*, llong, llong);
+uint anim_find(enum sprite_t);
+void animate_view(struct world_t*);
+void block_add(struct world_t*, struct block_t*);
+void block_purge(struct world_t*);
+void block_setdir(const char*);
 void console_enter(struct world_t*, SDL_Window*, SDL_Renderer*);
-
-void vid_reset(void);
-void vid_printf(SDL_Window*, SDL_Renderer*, const char*, ...);
+void generate_view(struct world_t*);
+void putsxy(SDL_Renderer*, int, int, const char*, ...);
+void render(struct world_t *world, SDL_Renderer*);

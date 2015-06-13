@@ -271,3 +271,8 @@ void block_add(struct world_t *world, struct block_t *block)
         block_purge(world);
     }
 }
+
+void block_setdir(const char *dir)
+{
+    chdir(dir);
+}
