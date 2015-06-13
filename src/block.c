@@ -105,10 +105,6 @@ struct block_t *block_load(llong x, llong y)
         node->next = new->anim_tiles;
         node->coords.x = *((llong*)buf);
         node->coords.y = *(((llong*)buf + 1));
-        assert(node->coords.x < BLOCK_DIM);
-        assert(node->coords.x >= 0);
-        assert(node->coords.y < BLOCK_DIM);
-        assert(node->coords.y >= 0);
 
         if(node->coords.x == 0x7FFFFFFFFFFFFFFF &&
            node->coords.y == 0x7FFFFFFFFFFFFFFF)
@@ -117,6 +113,12 @@ struct block_t *block_load(llong x, llong y)
             free(node);
             break;
         }
+
+        assert(node->coords.x < BLOCK_DIM);
+        assert(node->coords.x >= 0);
+        assert(node->coords.y < BLOCK_DIM);
+        assert(node->coords.y >= 0);
+
         printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
         new->anim_tiles = node;
     }
