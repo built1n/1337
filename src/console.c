@@ -1,8 +1,9 @@
 #include "globals.h"
 
-static int add_char(SDL_Window *wind, SDL_Renderer *rend, char *buf, size_t buflen, int bufidx, int key)
+static uint add_char(SDL_Window *wind, SDL_Renderer *rend, char *buf, size_t buflen, uint bufidx, int key)
 {
-    if((('a' <= key && key <= 'z') || key == ' ' || key == '-' || ('0' <= key && key <= '9')) && bufidx < buflen)
+    if((('a' <= key && key <= 'z') || key == ' ' || key == '-' || ('0' <= key && key <= '9') || key == 0) &&
+       bufidx < buflen)
     {
         buf[bufidx++] = (char)key;
         vid_printf(wind, rend, "%c", key);
@@ -10,7 +11,8 @@ static int add_char(SDL_Window *wind, SDL_Renderer *rend, char *buf, size_t bufl
     if(key == '\b')
     {
         printf("got backspace %d\n", bufidx);
-        bufidx = MAX(0, bufidx - 1);
+        if(bufidx)
+            bufidx = bufidx - 1;
         printf("%d\n", bufidx);
     }
     return bufidx;
@@ -19,7 +21,7 @@ static int add_char(SDL_Window *wind, SDL_Renderer *rend, char *buf, size_t bufl
 void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
 {
     char buf[128];
-    int bufidx = 0;
+    uint bufidx = 0;
     vid_reset();
     vid_printf(wind, rend, "Entered debug console.\nPress tilde again to exit.\n");
     while(1)
@@ -56,14 +58,14 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
                     case SDL_WINDOWEVENT_SIZE_CHANGED:
                         window_width = ev.window.data1;
                         window_height = ev.window.data2;
-                         on_resize(world);
+                        on_resize(world);
                         SDL_RenderPresent(rend);
                         break;
                     }
                     break;
                 }
-
             }
+            SDL_RenderPresent(rend);
         }
         bufidx = add_char(wind, rend, buf, sizeof(buf), bufidx, '\0');
     exec_cmd:
@@ -106,7 +108,7 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
         }
         else
         {
-            vid_printf(wind, rend, "unknown command: %s\n", cmd);
+            vid_printf(wind, rend, "unknown command: %s %d\n", cmd, bufidx);
         }
     }
 }
