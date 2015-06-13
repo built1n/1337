@@ -86,12 +86,6 @@ int main(int argc, char *argv[])
                     player_move(world, 0, 1);
                     break;
 #ifndef NDEBUG
-                case SDLK_p:
-                {
-                    extern void block_purgeall(struct world_t*);
-                    block_purgeall(world);
-                    break;
-                }
                 case SDLK_BACKQUOTE:
                     console_enter(world, window, rend);
                     break;

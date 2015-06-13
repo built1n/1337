@@ -26,6 +26,7 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
     {
         vid_printf(wind, rend, "> ");
         bufidx = 0;
+        memset(buf, 0, sizeof(buf));
 
         while(1)
         {
@@ -67,9 +68,8 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
         bufidx = add_char(wind, rend, buf, sizeof(buf), bufidx, '\0');
     exec_cmd:
         vid_printf(wind, rend, "\n");
-        vid_printf(wind, rend, "got command: %s\n", buf);
         char *cmd = strtok(buf, " ");
-        if(strcmp(buf, "teleport") == 0)
+        if(strcmp(cmd, "teleport") == 0)
         {
             char *xs = strtok(NULL, " ");
             vid_printf(wind, rend, "x is %s\n", xs);
@@ -81,16 +81,32 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
                 if(ys)
                 {
                     llong y = strtoll(ys, NULL, 0);
-                    world->camera.pos.x = x;
-                    world->camera.pos.y = y;
-                    world->player.pos.x = x + 8;
-                    world->player.pos.y = y + 8;
+                    world->camera.pos.x = x - 8;
+                    world->camera.pos.y = y - 8;
+                    world->player.pos.x = x;
+                    world->player.pos.y = y;
                     generate_view(world);
                     render(world, rend);
                     vid_printf(wind, rend, "teleport successful\n");
-                    vid_printf(wind, rend, "player: %lld %lld\n", world->player.pos.x, world->player.pos.y);
                 }
             }
+        }
+        else if(strcmp(cmd, "purge") == 0)
+        {
+            extern void block_purgeall(struct world_t*);
+            block_purgeall(world);
+            vid_printf(wind, rend, "all blocks written to disk\n");
+            generate_view(world);
+        }
+        else if(strcmp(cmd, "info") == 0)
+        {
+            vid_printf(wind, rend, "player position: (%lld, %lld)\n",
+                       world->player.pos.x, world->player.pos.y);
+            vid_printf(wind, rend, "blocklen: %d\n", world->blocklen);
+        }
+        else
+        {
+            vid_printf(wind, rend, "unknown command: %s\n", cmd);
         }
     }
 }
