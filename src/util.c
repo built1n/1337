@@ -18,7 +18,6 @@ void vputsxy(SDL_Renderer *rend, int x, int y, const char *fmt, va_list ap)
     static TTF_Font *font = NULL;
     char buf[256];
     vsnprintf(buf, sizeof(buf), fmt, ap);
-    printf("%s %d %d\n", buf, x, y);
     if(!font)
     {
         font = TTF_OpenFont("LiberationMono-Regular.ttf", 16);
