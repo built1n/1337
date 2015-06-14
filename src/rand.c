@@ -13,7 +13,7 @@ void mysrand(uint64_t seed)
 {
     if(!seed)
     {
-        seed = RAND_C1;
+        seed = 1;
     }
     rand_state = seed;
 }

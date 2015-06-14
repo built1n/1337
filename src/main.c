@@ -8,12 +8,19 @@ void on_resize(struct world_t *world)
     world->camera.size.y = CEIL(window_height/32);
 }
 
+char *datadir;
+
 int main(int argc, char *argv[])
 {
     (void) argc;
     (void) argv;
 
-    mysrand(42);
+    /* no need to call srand() here, it's called for each block generated */
+
+    datadir = getcwd(NULL, 0);
+
+    block_setdir("blocks");
+
 
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
@@ -42,11 +49,11 @@ int main(int argc, char *argv[])
 
     atexit(SDL_Quit);
 
-    world->camera.pos.x = 0;
-    world->camera.pos.y = 0;
+    world->camera.pos.x = -10;
+    world->camera.pos.y = -10;
     world->player.sprite = SPRITE_PLAYER;
-    world->player.pos.x = 8;
-    world->player.pos.y = 8;
+    world->player.pos.x = 0;
+    world->player.pos.y = 0;
 
     int elapsed = 0;
     while(1)
@@ -56,7 +63,7 @@ int main(int argc, char *argv[])
 
         SDL_Event ev;
         int before = SDL_GetTicks();
-        SDL_WaitEventTimeout(NULL, 100);
+        //SDL_WaitEventTimeout(NULL, 100);
         elapsed += SDL_GetTicks() - before;
         if(elapsed >= 100)
         {
@@ -111,5 +118,6 @@ int main(int argc, char *argv[])
                 animate_view(world);
             }
         }
+        player_move(world, -1, 0);
     }
 }

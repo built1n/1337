@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -132,6 +135,8 @@ struct world_t {
 };
 
 extern uint window_width, window_height;
+extern char *datadir;
+extern char *blockdir;
 
 enum sprite_t obstacles[8];
 enum sprite_t random_obstacles[4];

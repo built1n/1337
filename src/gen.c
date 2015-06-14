@@ -4,8 +4,8 @@ void gen_randomize(struct block_t *block)
 {
     uint64_t seed = 0;
     /* use the lower 32 bits from each coordinate of the block */
-    seed |= (block->coords.x << 32) & 0xFFFFFFFF;
-    seed |= block->coords.y & 0xFFFFFFFF;
+    seed |= ((block->coords.x / 64) << 32) & 0xFFFFFFFF;
+    seed |= (block->coords.y / 64) & 0xFFFFFFFF;
 
     /* re-seed the RNG to make blocks the same across games */
     mysrand(seed);
