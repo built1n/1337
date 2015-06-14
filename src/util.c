@@ -20,7 +20,9 @@ void vputsxy(SDL_Renderer *rend, int x, int y, const char *fmt, va_list ap)
     vsnprintf(buf, sizeof(buf), fmt, ap);
     if(!font)
     {
-        font = TTF_OpenFont("LiberationMono-Regular.ttf", 16);
+        char fontfile[128];
+        snprintf(fontfile, sizeof(fontfile), "%s/LiberationMono-Regular.ttf", datadir);
+        font = TTF_OpenFont(fontfile, 16);
 
         if(!font)
             fatal("failed to open font: %s", TTF_GetError());

@@ -7,8 +7,8 @@ void sprite_draw(enum sprite_t sprite, int x, int y, SDL_Renderer *rend)
     if(!sprites[sprite])
     {
         printf("load sprite %d\n", sprite);
-        char spritename[32];
-        snprintf(spritename, sizeof(spritename), "sprites/%d.bmp", sprite);
+        char spritename[128];
+        snprintf(spritename, sizeof(spritename), "%s/sprites/%d.bmp", datadir, sprite);
         SDL_Surface *surf = SDL_LoadBMP(spritename);
         uint32_t colorkey = SDL_MapRGB(surf->format, 0xFF, 0x00, 0xFF);
         SDL_SetColorKey(surf, SDL_TRUE, colorkey);

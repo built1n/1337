@@ -74,17 +74,15 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
         if(strcmp(cmd, "teleport") == 0)
         {
             char *xs = strtok(NULL, " ");
-            vid_printf(wind, rend, "x is %s\n", xs);
             if(xs)
             {
                 llong x = strtoll(xs, NULL, 0);
                 char *ys = strtok(NULL, " ");
-                vid_printf(wind, rend, "y is %s\n", ys);
                 if(ys)
                 {
                     llong y = strtoll(ys, NULL, 0);
-                    world->camera.pos.x = x - 8;
-                    world->camera.pos.y = y - 8;
+                    world->camera.pos.x = x - 10;
+                    world->camera.pos.y = y - 10;
                     world->player.pos.x = x;
                     world->player.pos.y = y;
                     generate_view(world);
@@ -105,6 +103,14 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
             vid_printf(wind, rend, "player position: (%lld, %lld)\n",
                        world->player.pos.x, world->player.pos.y);
             vid_printf(wind, rend, "blocklen: %d\n", world->blocklen);
+        }
+        else if(strcmp(cmd, "prefix") == 0)
+        {
+            char *dir = strtok(NULL, " ");
+            if(dir)
+                block_setdir(dir);
+            else
+                vid_printf(wind, rend, "`prefix` requires an argument\n");
         }
         else
         {

@@ -274,5 +274,15 @@ void block_add(struct world_t *world, struct block_t *block)
 
 void block_setdir(const char *dir)
 {
-    chdir(dir);
+    if(chdir(dir) < 0)
+    {
+        printf("%s\n", strerror(errno));
+        mode_t old_umask = umask(0);
+        mkdir(dir, 0744);
+        umask(old_umask);
+        if(chdir(dir) < 0)
+        {
+            fatal("can't create directory: %s", strerror(errno));
+        }
+    }
 }
