@@ -57,7 +57,7 @@ typedef long long llong;
 /* keep this small for now */
 #define MAX_SPRITES 32
 
-#define GEN_MAX_TREES 1000000
+#define GEN_MAX_TREES 100
 
 /* distance in tiles from the edge of the screen the player needs to be for the
    camera to scroll */
