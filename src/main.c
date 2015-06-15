@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     world->camera.pos.x = -10;
     world->camera.pos.y = -10;
     world->player.sprite = SPRITE_PLAYER;
-    world->player.pos.x = 0;
-    world->player.pos.y = 0;
+    world->player.pos.x = 8;
+    world->player.pos.y = 8;
 
     int elapsed = 0;
     while(1)
