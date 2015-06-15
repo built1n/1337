@@ -57,7 +57,7 @@ typedef long long llong;
 /* keep this small for now */
 #define MAX_SPRITES 32
 
-#define GEN_MAX_TREES 100
+#define GEN_MAX_TREES 1000000
 
 /* distance in tiles from the edge of the screen the player needs to be for the
    camera to scroll */
@@ -147,8 +147,8 @@ struct anim_def_t anim_data[1];
 void fatal(const char*, ...);
 void vid_printf(SDL_Window*, SDL_Renderer*, const char*, ...);
 void vid_reset(void);
-uint64_t myrand(void);
-void mysrand(uint64_t);
+uint32_t myrand(void);
+void mysrand(uint32_t);
 
 /* game-related functions */
 bool player_move(struct world_t *world, llong dx, llong dy);
