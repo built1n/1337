@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
         SDL_Event ev;
         int before = SDL_GetTicks();
-        //SDL_WaitEventTimeout(NULL, 100);
+        SDL_WaitEventTimeout(NULL, 100);
         elapsed += SDL_GetTicks() - before;
         if(elapsed >= 100)
         {
@@ -81,10 +81,10 @@ int main(int argc, char *argv[])
                 switch(ev.key.keysym.sym)
                 {
                 case SDLK_LEFT:
-                    player_move(world, 1, 0);
+                    player_move(world, -1, 0);
                     break;
                 case SDLK_RIGHT:
-                    player_move(world, -1, 0);
+                    player_move(world, 1, 0);
                     break;
                 case SDLK_UP:
                     player_move(world, 0, -1);
@@ -118,6 +118,5 @@ int main(int argc, char *argv[])
                 animate_view(world);
             }
         }
-        player_move(world, -1, 0);
     }
 }

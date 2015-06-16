@@ -14,7 +14,7 @@
 #include <zlib.h>
 
 /* some terminology:
-   tile: contains a sprite and properties
+   tile: contains a 32x32 sprite and properties
    block: 64x64 section of tiles
    world: list of blocks
 */
@@ -30,9 +30,11 @@
 #define ARRAYLEN(x) (sizeof(x) / sizeof(x[0]))
 #define CEIL(x) (ceil((double)x))
 #define FLOOR(x) (floor((double)x))
-#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MIN(a,b) (( (a) < (b) ) ? (a) : (b))
 #define MAX(a,b) (( (a) > (b) ) ? (a) : (b))
+#define SIGN(x) ( ((x) < 0) ? -1 : 1)
 
+/* initial screen size */
 #define LCD_WIDTH 1920
 #define LCD_HEIGHT 1200
 
@@ -134,10 +136,12 @@ struct world_t {
     SDL_mutex *mutex;
 };
 
+/* variable data */
 extern uint window_width, window_height;
 extern char *datadir;
 extern char *blockdir;
 
+/* constant data */
 enum sprite_t obstacles[8];
 enum sprite_t random_obstacles[4];
 enum sprite_t enemies[1];
