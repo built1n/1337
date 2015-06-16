@@ -24,8 +24,8 @@ void render(struct world_t *world, SDL_Renderer *rend)
 {
     struct camera_t *camera = &world->camera;
     struct player_t *player = &world->player;
-    for(llong x = camera->pos.x + camera->size.x, i = 0; x >= camera->pos.x; --x, ++i)
-        for(llong y = camera->pos.y, j = 0; y < camera->pos.y + camera->size.y; ++y, ++j)
+    for(llong x = camera->pos.x + camera->size.x, i = camera->size.x; x >= camera->pos.x; --x, --i)
+        for(llong y = camera->pos.y, j = camera->size.y; y <= camera->pos.y + camera->size.y; ++y, --j)
         {
             enum sprite_t sprite, back;
             struct tile_t *tile = tile_get(world, x, y);
@@ -33,13 +33,16 @@ void render(struct world_t *world, SDL_Renderer *rend)
             {
                 sprite = tile->sprite;
                 back = tile->background;
+                llong offs_x = 0, offs_y = 0;
                 if(x == player->pos.x && y == player->pos.y)
                 {
                     sprite = player->sprite;
+                    offs_x = player->offset.x;
+                    offs_y = player->offset.y;
                 }
 
                 sprite_draw(back, i * 32, j * 32, rend);
-                sprite_draw(sprite, i * 32, j * 32, rend);
+                sprite_draw(sprite, i * 32 + offs_x, j * 32 + offs_y, rend);
             }
         }
 
