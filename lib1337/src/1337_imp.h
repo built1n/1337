@@ -21,8 +21,6 @@
 
 #define SIGN(x) ( ((x) < 0) ? -1 : 1)
 
-void fatal(const char *fmt, ...);
-
 struct l33t_data {
     genfunc_t genfunc;
 };
