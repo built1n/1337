@@ -1,9 +1,6 @@
-#include <1337/1337.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include "globals.h"
 
 uint window_width, window_height;
-
 
 char *datadir;
 
@@ -32,25 +29,61 @@ void draw_sprite(void *userdata, uint x, uint y, sprite_t sprite)
     SDL_RenderCopy(rend, sprites[sprite], &srcrect, &dstrect);
 }
 
+void draw_text(void *userdata, uint x, uint y, const char *fmt, ...)
+{
+    SDL_Renderer *rend = userdata;
+    static TTF_Font *font = NULL;
+    if(!font)
+    {
+        char fontfile[128];
+        snprintf(fontfile, sizeof(fontfile), "LiberationMono-Regular.ttf");
+        font = TTF_OpenFont(fontfile, 16);
+
+        if(!font)
+            fatal("failed to open font: %s", TTF_GetError());
+    }
+
+    va_list ap;
+    va_start(ap, fmt);
+    char buf[128];
+    vsnprintf(buf, sizeof(buf), fmt, ap);
+
+    const SDL_Color color = { 0xff, 0xff, 0xff, 0xff };
+    SDL_Surface *text = TTF_RenderText_Solid(font, buf, color);
+
+    if(text)
+    {
+        SDL_Texture *t = SDL_CreateTextureFromSurface(rend, text);
+        SDL_Rect dest = { x, y, text->w, text->h };
+        SDL_RenderCopy(rend, t, NULL, &dest);
+        SDL_DestroyTexture(t);
+    }
+
+    SDL_FreeSurface(text);
+
+    va_end(ap);
+}
+
 void draw_update(void *userdata)
 {
     SDL_Renderer *rend = userdata;
     SDL_RenderPresent(rend);
 }
 
-size_t myfwrite(void *buf, size_t bytes, void *filehandle)
+size_t myfwrite(const void *buf, size_t bytes, void *filehandle)
 {
+    return fwrite(buf, 1, bytes, filehandle);
 }
 
 size_t myfread(void *buf, size_t bytes, void *filehandle)
 {
-
+    return fread(buf, 1, bytes, filehandle);
 }
 
 const struct interface_t sdl2_iface = {
     draw_clear,
     draw_sprite,
-    NULL,
+    draw_text,
     draw_update,
     fopen,
     myfwrite,
@@ -143,7 +176,7 @@ int main(int argc, char *argv[])
                     break;
 #ifndef NDEBUG
                 case SDLK_BACKQUOTE:
-                    //console_enter(world, window, rend);
+                    console_enter(world, window, rend);
                     break;
 #endif
                 }
