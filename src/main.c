@@ -6,7 +6,7 @@ char *datadir;
 
 void draw_clear(void *userdata)
 {
-
+    /* not needed */
 }
 
 void draw_sprite(void *userdata, uint x, uint y, sprite_t sprite)
@@ -24,6 +24,9 @@ void draw_sprite(void *userdata, uint x, uint y, sprite_t sprite)
         sprites[sprite] = SDL_CreateTextureFromSurface(rend, surf);
     }
 
+    if(!sprites[sprite])
+        fatal("failed to load sprite %d", sprite);
+
     const SDL_Rect srcrect = { 0, 0, 32, 32 };
     const SDL_Rect dstrect = { x, y, 32, 32 };
     SDL_RenderCopy(rend, sprites[sprite], &srcrect, &dstrect);
@@ -36,7 +39,7 @@ void draw_text(void *userdata, uint x, uint y, const char *fmt, ...)
     if(!font)
     {
         char fontfile[128];
-        snprintf(fontfile, sizeof(fontfile), "LiberationMono-Regular.ttf");
+        snprintf(fontfile, sizeof(fontfile), "%s/LiberationMono-Regular.ttf", datadir);
         font = TTF_OpenFont(fontfile, 16);
 
         if(!font)
@@ -70,6 +73,13 @@ void draw_update(void *userdata)
     SDL_RenderPresent(rend);
 }
 
+void *myfopen(const char *file, const char *mode)
+{
+    char filename[128];
+    snprintf(filename, sizeof(filename), "%s/blocks/%s", datadir, file);
+    return fopen(filename, mode);
+}
+
 size_t myfwrite(const void *buf, size_t bytes, void *filehandle)
 {
     return fwrite(buf, 1, bytes, filehandle);
@@ -78,6 +88,58 @@ size_t myfwrite(const void *buf, size_t bytes, void *filehandle)
 size_t myfread(void *buf, size_t bytes, void *filehandle)
 {
     return fread(buf, 1, bytes, filehandle);
+}
+
+uint obstacles[] = {
+    SPRITE_ROCK1,
+    SPRITE_TREE1,
+    SPRITE_TREE2,
+    SPRITE_TREE3,
+    SPRITE_ENEMY1_FRAME1,
+    SPRITE_ENEMY1_FRAME2,
+    SPRITE_ENEMY1_FRAME3,
+    SPRITE_ENEMY1_FRAME4,
+};
+
+uint random_obstacles[] = {
+    SPRITE_ROCK1,
+    SPRITE_TREE1,
+    SPRITE_TREE2,
+    SPRITE_TREE3,
+};
+
+uint enemies[] = {
+    SPRITE_ENEMY1_FRAME1,
+};
+
+static void mygen(struct block_t *block)
+{
+    /* re-seed the RNG to make blocks the same across games */
+    mysrand(block->coords.x, block->coords.y);
+
+    /* randomly place obstacles */
+    for(int i = 0; i < 100; ++i)
+    {
+        llong x = myrand() % BLOCK_DIM;
+        llong y = myrand() % BLOCK_DIM;
+        llong sprite = myrand() % ARRAYLEN(random_obstacles);
+        block->tiles[x][y].sprite = random_obstacles[sprite];
+    }
+
+#if 0
+    /* add an animated enemy */
+    uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;
+    struct tile_t *tile = &(block->tiles[enemy_x][enemy_y]);
+    tile->sprite = enemies[myrand() % ARRAYLEN(enemies)];
+    tile->data.anim.frame = 0;
+    tile->data.anim.type_idx = anim_find(tile->sprite);
+
+    struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
+    node->next = block->anim_tiles;
+    node->coords.x = enemy_x;
+    node->coords.y = enemy_y;
+    block->anim_tiles = node;
+#endif
 }
 
 const struct interface_t sdl2_iface = {
@@ -89,7 +151,8 @@ const struct interface_t sdl2_iface = {
     myfwrite,
     myfread,
     ferror,
-    fclose
+    fclose,
+    fatal
 };
 
 int main(int argc, char *argv[])
@@ -100,9 +163,6 @@ int main(int argc, char *argv[])
     /* no need to call srand() here, it's called for each block generated */
 
     datadir = getcwd(NULL, 0);
-
-    //block_setdir("blocks");
-
 
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
@@ -131,6 +191,7 @@ int main(int argc, char *argv[])
     window_height = 1200;
 
     l_init(world, window_width, window_height);
+    l_setgen(world, mygen);
 
     atexit(SDL_Quit);
 
@@ -163,16 +224,16 @@ int main(int argc, char *argv[])
                 switch(ev.key.keysym.sym)
                 {
                 case SDLK_LEFT:
-                    //player_move(world, -1, 0);
+                    world->camera.pos.x -= 1;
                     break;
                 case SDLK_RIGHT:
-                    //player_move(world, 1, 0);
+                    world->camera.pos.x += 1;
                     break;
                 case SDLK_UP:
-                    //player_move(world, 0, -1);
+                    world->camera.pos.y -= 1;
                     break;
                 case SDLK_DOWN:
-                    //player_move(world, 0, 1);
+                    world->camera.pos.y += 1;
                     break;
 #ifndef NDEBUG
                 case SDLK_BACKQUOTE:

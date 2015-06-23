@@ -16,7 +16,7 @@ static struct block_t *block_new(llong x, llong y)
 
 #define GZIP_CHUNK 0x1000
 
-static void block_swapout(struct interface_t *interface, struct block_t *block)
+static void block_swapout(const struct interface_t *interface, struct block_t *block)
 {
     printf("swap out\n");
     char buf[64];
@@ -36,7 +36,7 @@ static void block_swapout(struct interface_t *interface, struct block_t *block)
         memcpy(buf, &iter->coords.x, sizeof(llong));
         memcpy(buf + 8, &iter->coords.y, sizeof(llong));
         if(interface->fwrite(buf, sizeof(buf), f) != sizeof(buf) || interface->ferror(f))
-            fatal("file I/O error");
+            interface->fatal("file I/O error");
         iter = iter->next;
     }
 
@@ -54,7 +54,7 @@ static void block_swapout(struct interface_t *interface, struct block_t *block)
     out.opaque = Z_NULL;
     if(deflateInit(&out, Z_DEFAULT_COMPRESSION) != Z_OK)
     {
-      fatal("failed to open gzip stream for output");
+        interface->fatal("failed to open gzip stream for output");
     }
 
     out.avail_in = sizeof(block->tiles);
@@ -65,7 +65,7 @@ static void block_swapout(struct interface_t *interface, struct block_t *block)
         assert(deflate(&out, Z_FINISH) != Z_STREAM_ERROR);
         size_t have = GZIP_CHUNK - out.avail_out;
         if(interface->fwrite(outbuf, have, f) != have || interface->ferror(f))
-            fatal("file I/O error");
+            interface->fatal("file I/O error");
     } while (out.avail_in > 0);
 
     deflateEnd(&out);
@@ -74,7 +74,7 @@ static void block_swapout(struct interface_t *interface, struct block_t *block)
     interface->fclose(f);
 }
 
-static struct block_t *block_load(struct interface_t *interface, llong x, llong y)
+static struct block_t *block_load(const struct interface_t *interface, llong x, llong y)
 {
     printf("load block %lld, %lld\n", x, y);
     char filename[64];
@@ -94,7 +94,7 @@ static struct block_t *block_load(struct interface_t *interface, llong x, llong 
     {
         assert(sizeof(llong) * 2 == 16);
         if(interface->fread(buf, sizeof(buf), f) != sizeof(buf) || interface->ferror(f))
-            fatal("file I/O error");
+            interface->fatal("file I/O error");
         struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
         node->next = new->anim_tiles;
         node->coords.x = *((llong*)buf);
@@ -126,7 +126,7 @@ static struct block_t *block_load(struct interface_t *interface, llong x, llong 
     in.next_in = Z_NULL;
 
     if(inflateInit(&in) != Z_OK)
-        fatal("failed to open gzip stream");
+        interface->fatal("failed to open gzip stream");
 
     unsigned char *inbuf = malloc(GZIP_CHUNK);
     int ret;
@@ -153,7 +153,7 @@ static struct block_t *block_load(struct interface_t *interface, llong x, llong 
             case Z_DATA_ERROR:
             case Z_MEM_ERROR:
                 inflateEnd(&in);
-                fatal("gzip memory error");
+                interface->fatal("gzip memory error");
             }
             size_t have = GZIP_CHUNK - in.avail_out;
             out += have;
@@ -212,13 +212,12 @@ void l_purge(struct world_t *world)
     struct block_t *iter = world->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
-    uint local_dim = MAX(CEIL(world->camera.size.x / 64),
-                         CEIL(world->camera.size.y / 64)) + 2;
-    uint local_tiles = local_dim * BLOCK_DIM;
+    uint local_x = CEIL(world->camera.size.x / 64);
+    uint local_y = CEIL(world->camera.size.y / 64);
     while(iter)
     {
-        if((ABS(iter->coords.x - cam_x) > local_tiles ||
-            ABS(iter->coords.y - cam_y) > local_tiles))
+        if((ABS(iter->coords.x - cam_x) > local_x ||
+            ABS(iter->coords.y - cam_y) > local_y))
         {
             struct block_t *next = iter->next;
             block_swapout(world->interface, iter);
@@ -262,9 +261,13 @@ static void block_add(struct world_t *world, struct block_t *block)
 {
     block->next = world->blocks;
     world->blocks = block;
-    uint local_dim = MAX(CEIL(world->camera.size.x / 64),
-                         CEIL(world->camera.size.y / 64)) + 2;
-    if(world->blocklen++ > 4 * local_dim * local_dim)
+    uint local_x = CEIL(world->camera.size.x / 64);
+    uint local_y = CEIL(world->camera.size.y / 64);
+
+    /* local_tiles is the number of tiles in view of the camera */
+    uint local_tiles = local_x * local_y;
+
+    if(world->blocklen++ > local_tiles)
     {
         l_purge(world);
     }
