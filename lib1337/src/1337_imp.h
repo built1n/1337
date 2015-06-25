@@ -23,4 +23,6 @@
 
 struct l33t_data {
     genfunc_t genfunc;
+    struct block_t *blocks;
+    uint blocklen;
 };

@@ -44,6 +44,18 @@ static void mygen(struct block_t *block)
         block->tiles[x][y].sprite = random_obstacles[sprite];
     }
 
+    for(int y = 0; y < BLOCK_DIM; ++y)
+    {
+        if(y == 0 || y == BLOCK_DIM - 1)
+            for(int i = 0; i < BLOCK_DIM; ++i)
+                block->tiles[i][y].sprite = SPRITE_TREE1;
+        else
+        {
+            block->tiles[0][y].sprite = SPRITE_TREE1;
+            block->tiles[BLOCK_DIM-1][y].sprite = SPRITE_TREE1;
+        }
+    }
+
 #if 0
     /* add an animated enemy */
     uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;

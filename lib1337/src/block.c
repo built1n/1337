@@ -172,7 +172,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
 /* coords must be multiples of BLOCK_DIM */
 struct block_t *l_getblock(struct world_t *world, llong x, llong y)
 {
-    struct block_t *iter = world->blocks;
+    struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     while(iter)
     {
         if(iter->coords.x == x &&
@@ -209,11 +209,11 @@ void l_purge(struct world_t *world)
 {
     printf("purging block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
-    struct block_t *iter = world->blocks;
+    struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
-    uint local_x = CEIL(world->camera.size.x / 64.0) + 2;
-    uint local_y = CEIL(world->camera.size.y / 64.0) + 2;
+    uint local_x = world->camera.size.x + 2 * BLOCK_DIM;
+    uint local_y = world->camera.size.y + 2 * BLOCK_DIM;
     while(iter)
     {
         if((ABS(iter->coords.x - cam_x) > local_x ||
@@ -222,12 +222,12 @@ void l_purge(struct world_t *world)
             struct block_t *next = iter->next;
             block_swapout(world->interface, iter);
             if(!prev)
-                world->blocks = next;
+                ((struct l33t_data*)(world->privatedata))->blocks = next;
             else
                 prev->next = next;
             free(iter);
             iter = next;
-            --world->blocklen;
+            --((struct l33t_data*)(world->privatedata))->blocklen;
         }
         else
         {
@@ -241,33 +241,33 @@ void l_purgeall(struct world_t *world)
 {
     printf("purging entire block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
-    struct block_t *iter = world->blocks;
+    struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     while(iter)
     {
         struct block_t *next = iter->next;
         block_swapout(world->interface, iter);
         if(!prev)
-            world->blocks = next;
+            ((struct l33t_data*)(world->privatedata))->blocks = next;
         else
             prev->next = next;
         free(iter);
         iter = next;
-        --world->blocklen;
+        --((struct l33t_data*)(world->privatedata))->blocklen;
     }
 }
 
 static void block_add(struct world_t *world, struct block_t *block)
 {
-    block->next = world->blocks;
-    world->blocks = block;
+    block->next = ((struct l33t_data*)(world->privatedata))->blocks;
+    ((struct l33t_data*)(world->privatedata))->blocks = block;
     uint local_x = CEIL(world->camera.size.x / 64.0) + 2;
     uint local_y = CEIL(world->camera.size.y / 64.0) + 2;
 
     /* local_tiles is the number of blocks in view of the camera plus a margin */
     uint local_blocks = local_x * local_y;
 
-    if(world->blocklen++ > local_blocks)
+    if(((struct l33t_data*)(world->privatedata))->blocklen++ > local_blocks)
     {
         l_purge(world);
     }

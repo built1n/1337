@@ -101,11 +101,8 @@ void console_enter(struct world_t *world, SDL_Window *wind, SDL_Renderer *rend)
         }
         else if(strcmp(cmd, "info") == 0)
         {
-            /*
-            vid_printf(wind, rend, "player position: (%lld, %lld)\n",
-                       world->player.pos.x, world->player.pos.y);
-            */
-            vid_printf(wind, rend, "blocklen: %d\n", world->blocklen);
+            vid_printf(wind, rend, "camera position: (%lld, %lld)\n",
+                       world->camera.pos.x, world->camera.pos.y);
         }
         else if(strcmp(cmd, "prefix") == 0)
         {
