@@ -3,7 +3,7 @@ PROGRAM_NAME = 1337
 CC = cc
 INSTALL = install
 
-SRC := $(wildcard src/*.c) $(wildcard lib1337/src/*.c)
+SRC := $(wildcard src/*.c)
 OBJ := $(SRC:.c=.o)
 
 GIT_VERSION := $(shell git describe --abbrev=8 --always --dirty)
@@ -19,12 +19,22 @@ HEADERS := $(wildcard src/*.h)
 
 CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(GIT_VERSION)\" $(INCLUDES) -fPIC
 
-$(PROGRAM_NAME)_static: Makefile $(OBJ) $(HEADERS) $(LIBINC) $(LIBOBJ)
+LIBSRC := $(wildcard lib1337/src/*.c)
+LIBOBJ := $(LIBSRC:.c=.o)
+LIBINC := $(wildcard lib1337/include/*.h) $(wildcard lib1337/src/*.h)
+
+$(PROGRAM_NAME): Makefile $(OBJ) $(HEADERS) lib1337/src/lib1337.so
+	@echo "LD $@"
+	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) -L lib1337/src -l1337
+	@echo "WARNING: you need to run \`make install\` for the program to work properly"
+
+$(PROGRAM_NAME)_static: Makefile $(OBJ) $(HEADERS)
 	@echo "LD $@"
 	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) $(LIBOBJ)
 
-lib1337/src/lib1337.so: $(LIBOBJ) $(LIBINC)
-	@$(MAKE) -C lib1337
+lib1337/src/lib1337.so: Makefile $(LIBOBJ) $(LIBINC)
+	@echo "LD $@"
+	@$(CC) $(CFLAGS) $(LIBOBJ) -o $@ $(LIBS) -shared
 
 %.o: %.c Makefile $(HEADERS)
 	@echo "CC $<"
@@ -40,4 +50,4 @@ clean:
 	@echo "Cleaning build directory..."
 	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME)_static lib1337/src/lib1337.so
 
-all: $(PROGRAM_NAME)_static
+all: $(PROGRAM_NAME) $(PROGRAM_NAME)_static
