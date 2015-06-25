@@ -9,6 +9,7 @@ void init4curses(struct world_t *world)
 {
     initscr();
     cbreak();
+    noecho();
     keypad(stdscr, TRUE);
     atexit(curses_cleanup);
     int x, y;
@@ -60,6 +61,17 @@ static void draw_update(void *userdata)
     refresh();
 }
 
+static ullong my_mstime(void *userdata)
+{
+    (void) userdata;
+    struct timespec t;
+
+    clock_gettime(CLOCK_MONOTONIC, &t);
+
+    ullong ms = t.tv_sec * 1000 + t.tv_nsec / 1000000;
+    return ms;
+}
+
 const struct interface_t iface_curses = {
     draw_clear,
     draw_sprite,
@@ -70,5 +82,6 @@ const struct interface_t iface_curses = {
     myfread,
     myferror,
     myfclose,
-    fatal
+    fatal,
+    my_mstime
 };

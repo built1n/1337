@@ -102,7 +102,7 @@ static void draw_update(void *userdata)
     SDL_RenderPresent(rend);
 }
 
-static unsigned long mytime(void *userdata)
+static ullong mytime(void *userdata)
 {
     (void) userdata;
     return SDL_GetTicks();
