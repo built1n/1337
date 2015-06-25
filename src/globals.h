@@ -1,6 +1,10 @@
 #include <1337/1337.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+
+#include <curses.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +33,25 @@ enum sprite_t {
     SPRITE_ENEMY1_FRAME4
 };
 
+extern sprite_t obstacles[8], random_obstacles[4], enemies[1];
+extern const struct interface_t iface_sdl2, iface_curses;
+
 void fatal(const char*, ...);
-uint64_t myrand(void);
-void mysrand(uint64_t, uint64_t);
 void console_enter(struct world_t*, SDL_Window*, SDL_Renderer*);
+void vid_reset(void);
+void vid_printf(SDL_Window*, SDL_Renderer*, const char*, ...);
+
+/* custom RNG */
+uint8_t myrand(void);
+void mysrand(uint64_t, uint64_t);
+
+/* file I/O wrappers */
+void *myfopen(const char *file, const char *mode);
+size_t myfwrite(const void *buf, size_t bytes, void *filehandle);
+size_t myfread(void *buf, size_t bytes, void *filehandle);
+int myferror(void *filehandle);
+void myfclose(void *filehandle);
+
+void init4sdl(struct world_t*);
+void init4curses(struct world_t*);
+void sdl2_update(struct world_t*);
