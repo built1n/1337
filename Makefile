@@ -23,6 +23,8 @@ LIBSRC := $(wildcard lib1337/src/*.c)
 LIBOBJ := $(LIBSRC:.c=.o)
 LIBINC := $(wildcard lib1337/include/*.h) $(wildcard lib1337/src/*.h)
 
+all: $(PROGRAM_NAME) $(PROGRAM_NAME)_static
+
 $(PROGRAM_NAME): Makefile $(OBJ) $(HEADERS) lib1337/src/lib1337.so
 	@echo "LD $@"
 	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) -L lib1337/src -l1337
@@ -49,5 +51,3 @@ install: all
 clean:
 	@echo "Cleaning build directory..."
 	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME)_static lib1337/src/lib1337.so
-
-all: $(PROGRAM_NAME) $(PROGRAM_NAME)_static

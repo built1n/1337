@@ -44,6 +44,6 @@ void l_render(struct world_t *world)
                          ROUND_BLOCK(camera->pos.x),
                          ROUND_BLOCK(camera->pos.y));
     interface->draw_text(userdata, 0, 64, "blocklen: %d",
-                         world->blocklen);
+                         ((struct l33t_data*)(world->privatedata))->blocklen);
     interface->draw_update(userdata);
 }
