@@ -10,25 +10,21 @@ GIT_VERSION := $(shell git describe --abbrev=8 --always --dirty)
 
 PREFIX = /usr
 BINDIR = $(PREFIX)/bin
+LIBDIR = $(PREFIX)/lib
 
 INCLUDES = -I lib1337/include -I src
-LIBS = -l1337 -lm -lz -lSDL2 -lSDL2_ttf
+LIBS = -lm -lz -lSDL2 -lSDL2_ttf -lcurses
 
 HEADERS := $(wildcard src/*.h)
 
-LIBSRC := $(wildcard lib1337/src/*.c)
-LIBOBJ := $(LIBSRC:.c=.o)
-LIBINC := $(wildcard lib1337/include/*.h) $(wildcard lib1337/src/*.h)
-
 CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(GIT_VERSION)\" $(INCLUDES) -fPIC
 
-$(PROGRAM_NAME): $(OBJ) Makefile $(HEADERS) $(LIBINC) lib1337/src/lib1337.so
+$(PROGRAM_NAME)_static: Makefile $(OBJ) $(HEADERS) $(LIBINC) $(LIBOBJ)
 	@echo "LD $@"
-	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS)
+	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) $(LIBOBJ)
 
 lib1337/src/lib1337.so: $(LIBOBJ) $(LIBINC)
-	@echo "LD $@"
-	@$(CC) $(CFLAGS) -o $@ $(LIBOBJ) $(LIBS) -shared
+	@$(MAKE) -C lib1337
 
 %.o: %.c Makefile $(HEADERS)
 	@echo "CC $<"
@@ -37,9 +33,11 @@ lib1337/src/lib1337.so: $(LIBOBJ) $(LIBINC)
 install: all
 	@echo "INSTALL $(PROGRAM_NAME)"
 	@install $(PROGRAM_NAME) $(BINDIR)
+	@echo "INSTALL lib1337/src/lib1337.so"
+	@install lib1337/src/lib1337.so $(LIBDIR)
 
 clean:
 	@echo "Cleaning build directory..."
-	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME)
+	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME)_static lib1337/src/lib1337.so
 
-all: $(PROGRAM_NAME)
+all: $(PROGRAM_NAME)_static

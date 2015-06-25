@@ -2,10 +2,16 @@
 
 void l_render(struct world_t *world)
 {
+    void *userdata = world->userdata;
+    const struct interface_t *interface = world->interface;
+
+    interface->draw_clear(userdata);
+
     struct camera_t *camera = &world->camera;
-    //struct player_t *player = &world->player;
-    for(llong x = camera->pos.x + camera->size.x, i = camera->size.x; x >= camera->pos.x; --x, --i)
-        for(llong y = camera->pos.y, j = camera->size.y; y <= camera->pos.y + camera->size.y; ++y, --j)
+    const struct coords_t cam_offs = { world->camera.offset.x, world->camera.offset.y };
+
+    for(llong x = camera->pos.x + camera->size.x, i = camera->size.x; x >= camera->pos.x - 1; --x, --i)
+        for(llong y = camera->pos.y - 1, j = camera->size.y; y <= camera->pos.y + camera->size.y; ++y, --j)
         {
             sprite_t sprite, back;
             struct tile_t *tile = l_gettile(world, x, y);
@@ -21,14 +27,22 @@ void l_render(struct world_t *world)
                 //    offs_y = player->offset.y;
                 //}
 
-                world->interface->draw_sprite(world->userdata, i * 32, j * 32, back);
-                world->interface->draw_sprite(world->userdata,
-                                              i * 32 + offs_x, j * 32 + offs_y, sprite);
+                interface->draw_sprite(userdata,
+                                       i * 32 - cam_offs.x,
+                                       j * 32 + cam_offs.y,
+                                       back);
+                interface->draw_sprite(userdata,
+                                       i * 32 + offs_x - cam_offs.x,
+                                       j * 32 + offs_y + cam_offs.y,
+                                       sprite);
             }
         }
 
-    //putsxy(rend, 0, 0, "pos: (%lld, %lld)", player->pos.x, player->pos.y);
-    //putsxy(rend, 0, 16, "block: (%d, %d)", ROUND_BLOCK(player->pos.x), ROUND_BLOCK(player->pos.y));
-    //putsxy(rend, 0, 32, "blocklen: %d", world->blocklen);
-    world->interface->draw_update(world->userdata);
+    interface->draw_text(userdata, 0, 0, "pos: (%lld, %lld)",
+                                camera->pos.x, camera->pos.y);
+    interface->draw_text(userdata, 0, 16, "block: (%d, %d)",
+                                ROUND_BLOCK(camera->pos.x), ROUND_BLOCK(camera->pos.y));
+    interface->draw_text(userdata, 0, 32, "blocklen: %d",
+                                world->blocklen);
+    interface->draw_update(userdata);
 }

@@ -212,8 +212,8 @@ void l_purge(struct world_t *world)
     struct block_t *iter = world->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
-    uint local_x = CEIL(world->camera.size.x / 64);
-    uint local_y = CEIL(world->camera.size.y / 64);
+    uint local_x = CEIL(world->camera.size.x / 64.0) + 2;
+    uint local_y = CEIL(world->camera.size.y / 64.0) + 2;
     while(iter)
     {
         if((ABS(iter->coords.x - cam_x) > local_x ||
@@ -261,13 +261,13 @@ static void block_add(struct world_t *world, struct block_t *block)
 {
     block->next = world->blocks;
     world->blocks = block;
-    uint local_x = CEIL(world->camera.size.x / 64);
-    uint local_y = CEIL(world->camera.size.y / 64);
+    uint local_x = CEIL(world->camera.size.x / 64.0) + 2;
+    uint local_y = CEIL(world->camera.size.y / 64.0) + 2;
 
-    /* local_tiles is the number of tiles in view of the camera */
-    uint local_tiles = local_x * local_y;
+    /* local_tiles is the number of blocks in view of the camera plus a margin */
+    uint local_blocks = local_x * local_y;
 
-    if(world->blocklen++ > local_tiles)
+    if(world->blocklen++ > local_blocks)
     {
         l_purge(world);
     }
@@ -286,10 +286,10 @@ void l_loadblock(struct world_t *world, llong x, llong y)
             /* it's not on disk, generate a new one */
             printf("load failed.\n");
             block = block_new(x, y);
-            block_add(world, block);
             genfunc_t genfunc = ((struct l33t_data*)(world->privatedata))->genfunc;
             if(genfunc)
                 genfunc(block);
+            block_add(world, block);
         }
     }
 }

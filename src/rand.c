@@ -1,5 +1,9 @@
 #include "globals.h"
 
+/* a simple combined xorshift-MLCG generator */
+
+/* constants from Numerical Recipes 3rd Ed. */
+
 void xorshift(uint64_t *n)
 {
     *n ^= *n >> 21;
@@ -7,23 +11,31 @@ void xorshift(uint64_t *n)
     *n ^= *n >> 4;
 }
 
+void mlcg(uint64_t *n)
+{
+    *n *= 2685821657736338717LL;
+}
+
 static uint64_t a, b;
 
-uint64_t myrand(void)
+uint8_t myrand(void)
 {
     xorshift(&a);
-    xorshift(&b);
-    uint64_t ret = a & 0xFFFFFFFF;
-    ret |= b << 32;
+    mlcg(&b);
+    uint8_t ret = (a >> 21) + (b >> 16);
+
     return ret;
 }
 
 void mysrand(uint64_t hi, uint64_t lo)
 {
-    a = hi + 42;
+    /* initialize with some bit-rich constants */
+    a = hi ^ 4101842887655102017LL;
     if(!a)
         a = 1;
-    b = lo - 7;
+    myrand();
+    b = lo ^ a;
     if(!b)
-        b = 2;
+        b = 1;
+    myrand();
 }

@@ -9,8 +9,8 @@ void l_init(struct world_t *world, uint w, uint h)
 
 void l_resize(struct world_t *world, uint w, uint h)
 {
-    world->camera.size.x = CEIL(w / 32);
-    world->camera.size.y = CEIL(h / 32);
+    world->camera.size.x = CEIL(w / 32.0);
+    world->camera.size.y = CEIL(h / 32.0);
 }
 
 void l_free(struct world_t *world)
