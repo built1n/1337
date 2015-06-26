@@ -1,10 +1,12 @@
 /* 1337: a 2-D graphics engine */
 /* Copyright (C) 2015 Franklin Wei */
 
-/* Some Terminology: */
-/* "tile" - contains a 32x32 sprite and its offset */
-/* "block" - a 64x64 section of tiles, addressed by its upper-left tile */
-/* "world" - a list of blocks and other data */
+/*
+ * Some Terminology:
+ * "tile" - contains a 32x32 sprite and its offset
+ * "block" - a 64x64 section of tiles, addressed by its upper-left tile
+ * "world" - a list of blocks and other data
+ */
 
 #ifndef LEET_EXPORT_HEADER
 #define LEET_EXPORT_HEADER
@@ -50,7 +52,8 @@ struct block_t {
     struct block_t *next;
 };
 
-/* a structure of this type needs to be filled out
+/*
+ * a structure of this type needs to be filled out
  * and assigned to world->interface
  */
 struct interface_t {
@@ -62,7 +65,8 @@ struct interface_t {
 
     /* file input/output */
 
-    /* files are opened with out directory names, it is the responsibility
+    /*
+     * files are opened with out directory names, it is the responsibility
      * of the I/O functions to determine their locations
      */
 
@@ -93,54 +97,61 @@ struct world_t {
 typedef void (*genfunc_t)(struct block_t*);
 
 /* initializes a world context with the given resolution */
-void l_init(struct world_t*, uint window_w, uint window_h); /* IMP */
+void l_init(struct world_t*, uint window_w, uint window_h);
 
-/* to be called on camera resize
+/*
+ * should be called on camera resize
  *  - sets camera size to fit the new resolution
  *  - also generates blocks in view of the new camera
  */
 void l_resize(struct world_t*, uint new_w, uint new_h);
 
-/* moves the camera by an offset in PIXELS
+/*
+ * moves the camera by an offset in PIXELS
  *  - assumes that tilesize = 32px
  */
 void l_movecam(struct world_t*, llong dx, llong dy);
 
 /* sets the block generation function */
-void l_setgen(struct world_t*, genfunc_t); /* IMP */
+void l_setgen(struct world_t*, genfunc_t);
 
-/* generates or loads all blocks in view of the camera */
-void l_gen(struct world_t*); /* IMP */
-
-/* returns to a pointer to a tile at (x,y)
- *  - returns NULL if the block (x,y) is in is not loaded
+/*
+ * generates or loads all blocks in view of the camera
+ *  - attempts to purge the block list when done
  */
-struct tile_t *l_gettile(struct world_t*, llong x, llong y); /* IMP */
+void l_gen(struct world_t*);
 
-/* returns a pointer to the block starting at (x,y)
+/*
+ * returns to a pointer to a tile at (x,y)
+ *  - returns NULL if the block the tile is in is not loaded in memory
+ */
+struct tile_t *l_gettile(struct world_t*, llong x, llong y);
+
+/*
+ * returns a pointer to the block starting at (x,y)
  *  - both x and y MUST be multiples of 64
  *  - returns NULL if (x,y) does not refer to a valid block
  */
-struct block_t *l_getblock(struct world_t*, llong x, llong y); /* IMP */
+struct block_t *l_getblock(struct world_t*, llong x, llong y);
 
-/* loads or generates the block starting at (x,y) if it is not already loaded
- * also purges the block list if it exceeds a certain limit */
-void l_loadblock(struct world_t*, llong x, llong y); /* IMP */
+/* loads or generates the block starting at (x,y) if it is not already loaded */
+void l_loadblock(struct world_t*, llong x, llong y);
 
 /* purges blocks outside a certain distance from the camera */
-void l_purge(struct world_t*); /* IMP */
+void l_purge(struct world_t*);
 
 /* purges ALL blocks to disk */
-void l_purgeall(struct world_t*); /* IMP */
+void l_purgeall(struct world_t*);
 
 /* renders the visible tiles to screen via calls to draw_sprite */
 void l_render(struct world_t*);
 
 /* frees the world context and associated memory */
-void l_free(struct world_t*); /* IMP */
+void l_free(struct world_t*);
 
-/* returns a pointer to a statically allocated string containing the library version
- *  - the string should match with LEET_VERSION
+/*
+ * returns a pointer to a statically allocated string containing the library version
+ *  - the string MUST match LEET_VERSION exactly
  */
 const char *l_version(void);
 
