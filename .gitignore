@@ -1,7 +1,7 @@
 *.o
 *.so
 *~
-1337
-1337_static
+/1337
+/1337_static
 a.out
 /blocks/
