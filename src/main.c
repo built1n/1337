@@ -34,7 +34,7 @@ void myfclose(void *filehandle)
 static void mygen(struct block_t *block)
 {
     /* re-seed the RNG to make blocks the same across games */
-    mysrand(block->coords.x / 64, block->coords.y / 64);
+    mysrand(block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
 
     for(int i = 0; i < 100; ++i)
     {
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
                 l_movecam(world, 32, 0);
                 break;
             case KEY_UP:
-                l_movecam(world, 0, 8);
+                l_movecam(world, 0, 32);
                 break;
             case KEY_DOWN:
                 l_movecam(world, 0, -32);
