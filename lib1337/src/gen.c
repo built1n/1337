@@ -19,4 +19,5 @@ void l_gen(struct world_t *world)
             l_loadblock(world, x, y);
         }
     }
+    l_purge(world);
 }
