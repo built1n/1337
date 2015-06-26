@@ -9,6 +9,8 @@
 #ifndef LEET_EXPORT_HEADER
 #define LEET_EXPORT_HEADER
 
+#define LEET_VERSION VERSION_INFO
+
 #include <stddef.h> /* for size_t */
 
 #define BLOCK_DIM 64
@@ -136,5 +138,10 @@ void l_render(struct world_t*);
 
 /* frees the world context and associated memory */
 void l_free(struct world_t*); /* IMP */
+
+/* returns a pointer to a statically allocated string containing the library version
+ *  - the string should match with LEET_VERSION
+ */
+const char *l_version(void);
 
 #endif
