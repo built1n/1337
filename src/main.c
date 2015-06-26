@@ -7,6 +7,14 @@ char *datadir;
 void *myfopen(const char *file, const char *mode)
 {
     char filename[128];
+    snprintf(filename, sizeof(filename), "%s/blocks", datadir);
+    char *oldcwd = getcwd(NULL, 0);
+    if(chdir(filename) < 0)
+    {
+        printf("blocks dir does not exist, creating...\n");
+        mkdir(filename, 0755);
+    }
+    chdir(oldcwd);
     snprintf(filename, sizeof(filename), "%s/blocks/%s", datadir, file);
     return fopen(filename, mode);
 }
