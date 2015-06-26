@@ -7,9 +7,9 @@ void l_init(struct world_t *world, uint w, uint h)
     memset(world->privatedata, 0, sizeof(struct l33t_data));
     ((struct l33t_data*)(world->privatedata))->genfunc = NULL;
 
-    printf(" *** 1337 Library Init ***\n");
-    printf("Window size: %lld x %lld tiles\n",
-           world->camera.size.x, world->camera.size.y);
+    world->interface->printf(" *** 1337 Library Init ***\n");
+    world->interface->printf("Window size: %lld x %lld tiles\n",
+                             world->camera.size.x, world->camera.size.y);
 }
 
 void l_resize(struct world_t *world, uint w, uint h)
