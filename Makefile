@@ -30,7 +30,7 @@ $(PROGRAM_NAME): Makefile $(OBJ) $(HEADERS) lib1337/src/lib1337.so
 	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) -L lib1337/src -l1337
 	@echo "WARNING: you need to run \`make install\` for the program to work properly"
 
-$(PROGRAM_NAME)_static: Makefile $(OBJ) $(HEADERS)
+$(PROGRAM_NAME)_static: Makefile $(OBJ) $(HEADERS) $(LIBOBJ)
 	@echo "LD $@"
 	@$(CC) $(OBJ) -o $@ $(CFLAGS) $(LIBS) $(LIBOBJ)
 

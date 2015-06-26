@@ -216,15 +216,12 @@ void l_purge(struct world_t *world)
     uint local_y = world->camera.size.y + BLOCK_DIM;
     while(iter)
     {
-        printf("purge tilex: %d tiley: %d\n", local_x, local_y);
-        printf("deciding whether to purge block at %lld, %lld\n",
-               iter->coords.x, iter->coords.y);
         /* determine if all or part of the block is in view */
-        llong dx = ABS(iter->coords.x - cam_x);
-        llong dy = ABS(iter->coords.y - cam_y);
+        llong dx = iter->coords.x - cam_x;
+        llong dy = iter->coords.y - cam_y;
 
-        if(dx > local_x ||
-           dy > local_y)
+        if(dx > local_x || dx < -BLOCK_DIM ||
+           dy > local_y || dy < -BLOCK_DIM)
         {
             struct block_t *next = iter->next;
             block_swapout(world->interface, iter);
