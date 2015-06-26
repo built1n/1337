@@ -8,11 +8,11 @@ void l_setgen(struct world_t *world, genfunc_t genfunc)
 void l_gen(struct world_t *world)
 {
     struct camera_t *camera = &world->camera;
-    for(llong x = ROUND_BLOCK(world->camera.pos.x);
+    for(llong x = ROUND_BLOCK(world->camera.pos.x) - BLOCK_DIM;
         x <= ROUND_BLOCK(camera->pos.x + camera->size.x + BLOCK_DIM);
         x += BLOCK_DIM)
     {
-        for(llong y = ROUND_BLOCK(world->camera.pos.y);
+        for(llong y = ROUND_BLOCK(world->camera.pos.y) - BLOCK_DIM;
             y <= ROUND_BLOCK(camera->pos.y + camera->size.y + BLOCK_DIM);
             y += BLOCK_DIM)
         {
