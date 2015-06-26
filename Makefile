@@ -6,6 +6,8 @@ INSTALL = install
 SRC := $(wildcard src/*.c)
 OBJ := $(SRC:.c=.o)
 
+VERSION = v0.0.1
+
 GIT_VERSION := $(shell git describe --abbrev=8 --always --dirty)
 
 PREFIX = /usr
@@ -17,7 +19,7 @@ LIBS = -lm -lz -lSDL2 -lSDL2_ttf -lcurses
 
 HEADERS := $(wildcard src/*.h)
 
-CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(GIT_VERSION)\" $(INCLUDES) -fPIC
+CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(VERSION)\ $(GIT_VERSION)\" $(INCLUDES) -fPIC
 
 LIBSRC := $(wildcard lib1337/src/*.c)
 LIBOBJ := $(LIBSRC:.c=.o)

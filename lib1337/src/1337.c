@@ -23,3 +23,9 @@ void l_free(struct world_t *world)
     if(world->privatedata)
         free(world->privatedata);
 }
+
+const char *l_version(void)
+{
+    static const char *vers = VERSION_INFO;
+    return vers;
+}

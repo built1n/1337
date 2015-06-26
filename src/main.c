@@ -85,6 +85,13 @@ int main(int argc, char *argv[])
     (void) argc;
     (void) argv;
 
+    /* first, make sure that the header version matches the library version */
+    if(strcmp(LEET_VERSION, l_version()) != 0)
+    {
+        fatal("Version mismatch (expected: %s, have: %s)",
+              LEET_VERSION, l_version());
+    }
+
     /* no need to call srand() here, it's called for each block generated */
 
     datadir = getcwd(NULL, 0);
