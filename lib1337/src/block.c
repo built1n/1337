@@ -212,12 +212,19 @@ void l_purge(struct world_t *world)
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
-    uint local_x = world->camera.size.x + 2 * BLOCK_DIM;
-    uint local_y = world->camera.size.y + 2 * BLOCK_DIM;
+    uint local_x = world->camera.size.x + BLOCK_DIM;
+    uint local_y = world->camera.size.y + BLOCK_DIM;
     while(iter)
     {
-        if((ABS(iter->coords.x - cam_x) > local_x ||
-            ABS(iter->coords.y - cam_y) > local_y))
+        printf("purge tilex: %d tiley: %d\n", local_x, local_y);
+        printf("deciding whether to purge block at %lld, %lld\n",
+               iter->coords.x, iter->coords.y);
+        /* determine if all or part of the block is in view */
+        llong dx = ABS(iter->coords.x - cam_x);
+        llong dy = ABS(iter->coords.y - cam_y);
+
+        if(dx > local_x ||
+           dy > local_y)
         {
             struct block_t *next = iter->next;
             block_swapout(world->interface, iter);
@@ -261,16 +268,7 @@ static void block_add(struct world_t *world, struct block_t *block)
 {
     block->next = ((struct l33t_data*)(world->privatedata))->blocks;
     ((struct l33t_data*)(world->privatedata))->blocks = block;
-    uint local_x = CEIL(world->camera.size.x / 64.0) + 2;
-    uint local_y = CEIL(world->camera.size.y / 64.0) + 2;
-
-    /* local_tiles is the number of blocks in view of the camera plus a margin */
-    uint local_blocks = local_x * local_y;
-
-    if(((struct l33t_data*)(world->privatedata))->blocklen++ > local_blocks)
-    {
-        l_purge(world);
-    }
+    ((struct l33t_data*)(world->privatedata))->blocklen++;
 }
 
 void l_loadblock(struct world_t *world, llong x, llong y)
