@@ -119,7 +119,8 @@ const struct interface_t iface_sdl2 = {
     myferror,
     myfclose,
     fatal,
-    mytime
+    mytime,
+    printf
 };
 
 void sdl2_update(struct world_t *world)

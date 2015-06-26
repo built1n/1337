@@ -18,7 +18,7 @@ static struct block_t *block_new(llong x, llong y)
 
 static void block_swapout(const struct interface_t *interface, struct block_t *block)
 {
-    printf("swap out\n");
+    interface->printf("swap out\n");
     char buf[64];
     snprintf(buf, sizeof(buf), "%016llx%016llx.block",
              block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
@@ -29,7 +29,7 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
     struct anim_tilelist *iter = block->anim_tiles;
     while(iter)
     {
-        printf("writing anim tile data record\n");
+        interface->printf("writing anim tile data record\n");
         /* FIXME: assumes sizeof(llong) = 8 */
         unsigned char buf[16];
         assert(sizeof(llong) * 2 == 16);
@@ -76,7 +76,7 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
 
 static struct block_t *block_load(const struct interface_t *interface, llong x, llong y)
 {
-    printf("load block %lld, %lld\n", x, y);
+    interface->printf("load block %lld, %lld\n", x, y);
     char filename[64];
     snprintf(filename, sizeof(filename), "%016llx%016llx.block",
              x / BLOCK_DIM, y / BLOCK_DIM);
@@ -103,7 +103,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         if(node->coords.x == 0x7FFFFFFFFFFFFFFF &&
            node->coords.y == 0x7FFFFFFFFFFFFFFF)
         {
-            printf("encountered sentinel value\n");
+            interface->printf("encountered sentinel value\n");
             free(node);
             break;
         }
@@ -113,7 +113,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         assert(node->coords.y < BLOCK_DIM);
         assert(node->coords.y >= 0);
 
-        printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
+        interface->printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
         new->anim_tiles = node;
     }
 #endif
@@ -207,7 +207,7 @@ struct tile_t* l_gettile(struct world_t *world, llong x, llong y)
 
 void l_purge(struct world_t *world)
 {
-    printf("purging block list\n");
+    world->interface->printf("purging block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
@@ -243,7 +243,7 @@ void l_purge(struct world_t *world)
 
 void l_purgeall(struct world_t *world)
 {
-    printf("purging entire block list\n");
+    world->interface->printf("purging entire block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
@@ -279,7 +279,7 @@ void l_loadblock(struct world_t *world, llong x, llong y)
         else
         {
             /* it's not on disk, generate a new one */
-            printf("load failed.\n");
+            world->interface->printf("load failed.\n");
             block = block_new(x, y);
             genfunc_t genfunc = ((struct l33t_data*)(world->privatedata))->genfunc;
             if(genfunc)

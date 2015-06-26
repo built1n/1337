@@ -14,8 +14,8 @@ void init4curses(struct world_t *world)
     atexit(curses_cleanup);
     int x, y;
     getmaxyx(stdscr, y, x);
-    l_init(world, x * 32, y * 32);
     world->interface = &iface_curses;
+    l_init(world, x * 32, y * 32);
 }
 
 static void draw_clear(void *userdata)
@@ -72,6 +72,12 @@ static ullong my_mstime(void *userdata)
     return ms;
 }
 
+int dummy_printf(const char *fmt, ...)
+{
+    (void) fmt;
+    return 0;
+}
+
 const struct interface_t iface_curses = {
     draw_clear,
     draw_sprite,
@@ -83,5 +89,6 @@ const struct interface_t iface_curses = {
     myferror,
     myfclose,
     fatal,
-    my_mstime
+    my_mstime,
+    dummy_printf
 };
