@@ -11,7 +11,7 @@
 
 #include <stddef.h> /* for size_t */
 
-#define BLOCK_DIM 16
+#define BLOCK_DIM 64
 
 typedef unsigned long long ullong;
 typedef unsigned long ulong;
