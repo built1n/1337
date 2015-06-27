@@ -251,8 +251,6 @@ void l_purge(struct world_t *world)
             }
         }
     }
-    else
-        world->interface->printf("NOT purging bloclist\n");
 }
 
 void l_purgeall(struct world_t *world)
