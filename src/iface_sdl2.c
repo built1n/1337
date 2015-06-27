@@ -14,7 +14,7 @@ void init4sdl(struct world_t *world)
 
     SDL_Window *window = NULL;
     SDL_Renderer *rend = NULL;
-    window = SDL_CreateWindow("a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    window = SDL_CreateWindow(PROGRAM_NAME " - " VERSION_INFO, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               1920, 1200, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     rend = SDL_CreateRenderer(window, -1,
                               SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
