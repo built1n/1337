@@ -99,7 +99,11 @@ int main(int argc, char *argv[])
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
 
-    enum interface_t { SDL, CURS } interface = SDL;
+    /*
+     * TinyCC doesn't distinguish between struct* and enum* namespaces,
+     * so this enum is called iface_t
+     */
+    enum iface_t { SDL, CURS } interface = SDL;
     if(argc > 1 && strcmp(argv[1], "--curses") == 0)
         interface = CURS;
 
