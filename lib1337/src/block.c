@@ -205,40 +205,54 @@ struct tile_t* l_gettile(struct world_t *world, llong x, llong y)
     return &block->tiles[tile_x][tile_y];
 }
 
+/* this function needs work */
+/* it should be that after the block list is purged, it remains "stable" until
+   blocks are out of view */
 void l_purge(struct world_t *world)
 {
-    world->interface->printf("purging block list\n");
     /* iterate over the block list and remove any blocks outside of the "local" range */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     llong cam_x = world->camera.pos.x, cam_y = world->camera.pos.y;
+    llong cam_w = world->camera.size.x, cam_h = world->camera.size.y;
+
+    /* the dimensions of the region around the camera that blocks
+       can exist in */
     uint local_x = world->camera.size.x + BLOCK_DIM;
     uint local_y = world->camera.size.y + BLOCK_DIM;
-    while(iter)
-    {
-        /* determine if all or part of the block is in view */
-        llong dx = iter->coords.x - cam_x;
-        llong dy = iter->coords.y - cam_y;
 
-        if(dx > local_x || dx < -BLOCK_DIM ||
-           dy > local_y || dy < -BLOCK_DIM)
+    /* determine if the length of the block list exceeds a threshold */
+    if(CEIL((local_x * local_y) / (BLOCK_DIM * BLOCK_DIM)) < ((struct l33t_data*)(world->privatedata))->blocklen)
+    {
+        world->interface->printf("purging block list\n");
+        while(iter)
         {
-            struct block_t *next = iter->next;
-            block_swapout(world->interface, iter);
-            if(!prev)
-                ((struct l33t_data*)(world->privatedata))->blocks = next;
+            /* determine if all or part of the block is in view */
+            llong dx = iter->coords.x - cam_x;
+            llong dy = iter->coords.y - cam_y;
+
+            if(dx > cam_w || dx < -BLOCK_DIM ||
+               dy > cam_h || dy < -BLOCK_DIM)
+            {
+                struct block_t *next = iter->next;
+                block_swapout(world->interface, iter);
+                if(!prev)
+                    ((struct l33t_data*)(world->privatedata))->blocks = next;
+                else
+                    prev->next = next;
+                free(iter);
+                iter = next;
+                --((struct l33t_data*)(world->privatedata))->blocklen;
+            }
             else
-                prev->next = next;
-            free(iter);
-            iter = next;
-            --((struct l33t_data*)(world->privatedata))->blocklen;
-        }
-        else
-        {
-            prev = iter;
-            iter = iter->next;
+            {
+                prev = iter;
+                iter = iter->next;
+            }
         }
     }
+    else
+        world->interface->printf("NOT purging bloclist\n");
 }
 
 void l_purgeall(struct world_t *world)
