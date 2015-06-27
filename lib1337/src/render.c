@@ -38,8 +38,9 @@ void l_render(struct world_t *world)
             }
         }
 
-    interface->draw_text(userdata, 0, 0, "pos: (%lld, %lld)",
-                                camera->pos.x, camera->pos.y);
+    interface->draw_text(userdata, 0, 0, "pos: (%lld, %lld) + (%lld, %lld)",
+                         camera->pos.x, camera->pos.y,
+                         camera->offset.x, camera->offset.y);
     interface->draw_text(userdata, 0, 32, "block: (%d, %d)",
                          ROUND_BLOCK(camera->pos.x),
                          ROUND_BLOCK(camera->pos.y));
