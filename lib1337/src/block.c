@@ -205,9 +205,6 @@ struct tile_t* l_gettile(struct world_t *world, llong x, llong y)
     return &block->tiles[tile_x][tile_y];
 }
 
-/* this function needs work */
-/* it should be that after the block list is purged, it remains "stable" until
-   blocks are out of view */
 void l_purge(struct world_t *world)
 {
     /* iterate over the block list and remove any blocks outside of the "local" range */
