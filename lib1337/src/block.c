@@ -18,13 +18,14 @@ static struct block_t *block_new(llong x, llong y)
 
 static void block_swapout(const struct interface_t *interface, struct block_t *block)
 {
-    interface->printf("swap out\n");
+    interface->printf("swap out (%lld, %lld)\n",
+                      block->coords.x, block->coords.y);
     char buf[64];
     snprintf(buf, sizeof(buf), "%016llx%016llx.block",
              block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
     void *f = interface->fopen(buf, "w");
 
-    /* animation is the responsibility of the user */
+    /* animation is now the responsibility of the user */
 #if 0
     struct anim_tilelist *iter = block->anim_tiles;
     while(iter)
@@ -228,8 +229,8 @@ void l_purge(struct world_t *world)
             llong dx = iter->coords.x - cam_x;
             llong dy = iter->coords.y - cam_y;
 
-            if(dx > cam_w || dx < -BLOCK_DIM ||
-               dy > cam_h || dy < -BLOCK_DIM)
+            if(dx <= -BLOCK_DIM || cam_w < dx ||
+               dy <= -BLOCK_DIM || cam_h < dy)
             {
                 struct block_t *next = iter->next;
                 block_swapout(world->interface, iter);
