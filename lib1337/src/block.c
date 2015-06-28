@@ -216,8 +216,8 @@ void l_purge(struct world_t *world)
 
     /* the dimensions of the region around the camera that blocks
        can exist in */
-    uint local_x = world->camera.size.x + BLOCK_DIM;
-    uint local_y = world->camera.size.y + BLOCK_DIM;
+    uint local_x = ROUND_BLOCK(world->camera.size.x + BLOCK_DIM) + BLOCK_DIM;
+    uint local_y = ROUND_BLOCK(world->camera.size.y + BLOCK_DIM) + BLOCK_DIM;
 
     /* determine if the length of the block list exceeds a threshold */
     if(CEIL((local_x * local_y) / (BLOCK_DIM * BLOCK_DIM)) < ((struct l33t_data*)(world->privatedata))->blocklen)
