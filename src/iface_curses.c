@@ -21,7 +21,7 @@ void init4curses(struct world_t *world)
 static void draw_clear(void *userdata)
 {
     (void) userdata;
-    clear();
+    //clear();
 }
 
 static void draw_sprite(void *userdata, uint x, uint y, sprite_t sprite)
