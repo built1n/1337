@@ -15,4 +15,4 @@ This will build the engine library, an executable linked with the library, and a
 
 ## Running
 
-Run with no arguments for SDL, use <code>--curses</code> for curses mode.
+Run with no arguments for SDL mode, use <code>--curses</code> for curses mode.
