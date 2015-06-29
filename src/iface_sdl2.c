@@ -174,7 +174,6 @@ void sdl2_update(struct world_t *world)
                 window_width = ev.window.data1;
                 window_height = ev.window.data2;
                 l_resize(world, window_width, window_height);
-                world->interface->draw_update(world->userdata);
                 break;
             }
             break;
