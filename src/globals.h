@@ -57,3 +57,9 @@ void myfclose(void *filehandle);
 void init4sdl(struct world_t*);
 void init4curses(struct world_t*);
 void sdl2_update(struct world_t*);
+
+/* tile data i/o */
+
+void tiledata_write(void *filehandle, void *userdata);
+
+void tiledata_read(void *filehandle, void **userdata);

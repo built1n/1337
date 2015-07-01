@@ -19,7 +19,7 @@ LIBS = -lm -lz -lSDL2 -lSDL2_ttf -lcurses
 
 HEADERS := $(wildcard src/*.h)
 
-CFLAGS = -O2 -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(VERSION)\ \($(GIT_VERSION)\)\" -DPROGRAM_NAME=\"$(PROGRAM_NAME)\" $(INCLUDES) -fPIC
+CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(VERSION)\ \($(GIT_VERSION)\)\" -DPROGRAM_NAME=\"$(PROGRAM_NAME)\" $(INCLUDES) -fPIC
 
 LIBSRC := $(wildcard lib1337/src/*.c)
 LIBOBJ := $(LIBSRC:.c=.o)

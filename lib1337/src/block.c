@@ -72,6 +72,17 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
     deflateEnd(&out);
     free(outbuf);
 
+    /* user data is written uncompressed */
+#if 1
+    for(int y = 0; y < BLOCK_DIM; ++y)
+    {
+        for(int x = 0; x < BLOCK_DIM; ++x)
+        {
+            interface->tiledata_write(f, block->tiles[x][y].userdata);
+        }
+    }
+#endif
+
     interface->fclose(f);
 }
 
@@ -84,7 +95,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     void *f = interface->fopen(filename, "r");
     if(!f)
         return NULL;
-    struct block_t *new = block_new(x, y);
+    struct block_t *block = block_new(x, y);
 
 #if 0
     unsigned char buf[16];
@@ -97,7 +108,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         if(interface->fread(buf, sizeof(buf), f) != sizeof(buf) || interface->ferror(f))
             interface->fatal("file I/O error");
         struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
-        node->next = new->anim_tiles;
+        node->next = block->anim_tiles;
         node->coords.x = *((llong*)buf);
         node->coords.y = *(((llong*)buf + 1));
 
@@ -115,7 +126,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         assert(node->coords.y >= 0);
 
         interface->printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
-        new->anim_tiles = node;
+        block->anim_tiles = node;
     }
 #endif
 
@@ -131,8 +142,8 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
 
     unsigned char *inbuf = malloc(GZIP_CHUNK);
     int ret;
-    uchar *out = (uchar*)new->tiles;
-    size_t avail = sizeof(new->tiles);
+    uchar *out = (uchar*)block->tiles;
+    size_t avail = sizeof(block->tiles);
 
     do {
         in.avail_in = interface->fread(inbuf, GZIP_CHUNK, f);
@@ -165,8 +176,19 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     inflateEnd(&in);
     free(inbuf);
 
+#if 1
+    /* read user data */
+    for(int y = 0; y < BLOCK_DIM; ++y)
+    {
+        for(int x = 0; x < BLOCK_DIM; ++x)
+        {
+            interface->tiledata_read(f, &block->tiles[x][y].userdata);
+        }
+    }
+#endif
+
     interface->fclose(f);
-    return new;
+    return block;
 }
 
 /* gets the block starting at a coordinate */
@@ -282,6 +304,7 @@ void l_loadblock(struct world_t *world, llong x, llong y)
 {
     if(l_getblock(world, x, y) == NULL)
     {
+        printf("found null block\n");
         /* first try getting it from disk */
         struct block_t *block = block_load(world->interface, x, y);
         if(block)

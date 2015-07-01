@@ -76,6 +76,10 @@ struct interface_t {
     int (*ferror)(void *filehandle);
     void (*fclose)(void *filehandle);
 
+    /* functions are called to read and write user data to and from disk */
+    void (*tiledata_write)(void *filehandle, void *userdata);
+    void (*tiledata_read)(void *filehandle, void **userdata);
+
     /* miscellaneous */
     void (*fatal)(const char *fmt, ...);
     ullong (*get_mstime)(void *userdata);

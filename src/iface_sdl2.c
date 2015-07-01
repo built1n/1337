@@ -38,7 +38,7 @@ void init4sdl(struct world_t *world)
 
 static void draw_clear(void *userdata)
 {
-    SDL_RenderClear(userdata);
+    //SDL_RenderClear(userdata);
 }
 
 static void draw_sprite(void *userdata, uint x, uint y, sprite_t sprite)
@@ -121,6 +121,8 @@ const struct interface_t iface_sdl2 = {
     myfread,
     myferror,
     myfclose,
+    tiledata_write,
+    tiledata_read,
     fatal,
     mytime,
     printf

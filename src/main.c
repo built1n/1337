@@ -39,6 +39,15 @@ void myfclose(void *filehandle)
     fclose(filehandle);
 }
 
+void tiledata_write(void *filehandle, void *userdata)
+{
+}
+
+void tiledata_read(void *filehandle, void **userdata)
+{
+
+}
+
 static void mygen(struct block_t *block)
 {
     /* re-seed the RNG to make blocks the same across games */
