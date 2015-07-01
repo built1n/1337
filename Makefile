@@ -19,7 +19,7 @@ LIBS = -lm -lz -lSDL2 -lSDL2_ttf -lcurses
 
 HEADERS := $(wildcard src/*.h)
 
-CFLAGS = -Og -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(VERSION)\ \($(GIT_VERSION)\)\" -DPROGRAM_NAME=\"$(PROGRAM_NAME)\" $(INCLUDES) -fPIC
+CFLAGS = -O2 -g -Wall -Wextra -std=gnu99 -DVERSION_INFO=\"$(VERSION)\ \($(GIT_VERSION)\)\" -DPROGRAM_NAME=\"$(PROGRAM_NAME)\" $(INCLUDES) -fPIC
 
 LIBSRC := $(wildcard lib1337/src/*.c)
 LIBOBJ := $(LIBSRC:.c=.o)
@@ -52,4 +52,4 @@ install: all
 
 clean:
 	@echo "Cleaning build directory..."
-	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME)_static lib1337/src/lib1337.so
+	@rm -f $(OBJ) $(LIBOBJ) $(PROGRAM_NAME) $(PROGRAM_NAME)_static lib1337/src/lib1337.so
