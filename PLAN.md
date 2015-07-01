@@ -1,5 +1,8 @@
 # Plan
 
+This game idea is heavily inspired by the original Elite.
+None of this is implemented yet.
+
 ## Background
 
 You live in the land of Alacron in the year of 238 ABA. The period of relative peace under King Ajax IV has come to an abrupt end with his death under mysterious circumstances.
