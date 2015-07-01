@@ -31,10 +31,11 @@ void l_render(struct world_t *world)
                                        i * 32 - cam_offs.x,
                                        j * 32 + cam_offs.y,
                                        back);
-                interface->draw_sprite(userdata,
-                                       i * 32 + offs_x - cam_offs.x,
-                                       j * 32 + offs_y + cam_offs.y,
-                                       sprite);
+                if(sprite != back && !offs_x && !offs_y)
+                    interface->draw_sprite(userdata,
+                                           i * 32 + offs_x - cam_offs.x,
+                                           j * 32 + offs_y + cam_offs.y,
+                                           sprite);
             }
         }
 
