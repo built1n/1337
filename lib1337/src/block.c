@@ -294,8 +294,9 @@ struct block_t *l_loadblock(struct world_t *world, llong x, llong y)
             /* it's not on disk, generate a new one */
             world->interface->printf("load failed.\n");
             ret = block_new(x, y);
+
             /* add the block first to prevent an infinite loop
-               if the genfunc calls l_addoverlay */
+               in case the generator function calls l_addoverlay */
             block_add(world, ret);
 
             genfunc_t genfunc = ((struct l33t_data*)(world->privatedata))->genfunc;
