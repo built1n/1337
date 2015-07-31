@@ -25,7 +25,7 @@ void init4sdl(struct world_t *world)
     rend = SDL_CreateRenderer(window, -1,
                               SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-    world->interface = &iface_sdl2 ;
+    world->interface = &iface_sdl2;
     world->userdata = rend;
 
     world->camera.pos.x = -10;
@@ -38,6 +38,7 @@ void init4sdl(struct world_t *world)
 
 static void draw_clear(void *userdata)
 {
+    (void) userdata;
     //SDL_RenderClear(userdata);
 }
 
@@ -121,8 +122,6 @@ const struct interface_t iface_sdl2 = {
     myfread,
     myferror,
     myfclose,
-    tiledata_write,
-    tiledata_read,
     fatal,
     mytime,
     printf

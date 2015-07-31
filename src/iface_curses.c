@@ -88,8 +88,6 @@ const struct interface_t iface_curses = {
     myfread,
     myferror,
     myfclose,
-    tiledata_write,
-    tiledata_read,
     fatal,
     my_mstime,
     dummy_printf

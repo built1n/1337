@@ -29,10 +29,101 @@ enum sprite_t {
     SPRITE_PLAYER,
     SPRITE_TREE2,
     SPRITE_TREE3,
-    SPRITE_ENEMY1_FRAME1,
-    SPRITE_ENEMY1_FRAME2,
-    SPRITE_ENEMY1_FRAME3,
-    SPRITE_ENEMY1_FRAME4
+    SPRITE_STORE1,
+    LAST_SPRITE
+};
+
+enum itemtype {
+    ITEM_ARMOR_WOOD,
+    ITEM_ARMOR_IRON,
+    ITEM_ARMOR_STEEL,
+    ITEM_ARMOR_LEGENDARY,
+
+    ITEM_SWORD_WOODEN,
+    ITEM_SWORD_IRON,
+    ITEM_SWORD_STEEL,
+    ITEM_SWORD_LEGENDARY,
+    ITEM_BATTLEAXE,
+    ITEM_MACE_IRON,
+    ITEM_MACE_STEEL,
+
+    ITEM_SLING,
+    ITEM_LONGBOW,
+    ITEM_CROSSBOW,
+    ITEM_MUSKET,
+    ITEM_PISTOL,
+    ITEM_RIFLE,
+    ITEM_HANDCANNON,
+};
+
+enum itemclass {
+    ITEMCLASS_ARMOR,
+    ITEMCLASS_WEAPON_MELEE,
+    ITEMCLASS_WEAPON_RANGED,
+    ITEMCLASS_GOOD,
+};
+
+struct weapondata_t {
+    uint range; /* 0 = melee */
+    uint dmg;
+};
+
+struct armordata_t {
+    uint hp;
+    uint maxhp;
+};
+
+struct tradegood_data {
+    uint count;
+    uint purchased;
+};
+
+struct tradegood_t {
+    const char *name;
+    uint baseprice;
+    int gradient; /* in tenths of credits over x = [1,10] */
+};
+
+struct tradegood_t tradegoods[3];
+
+struct item_t {
+    enum itemtype item;
+    uint weight; /* in grams */
+    enum { GRAMS, KILOGRAMS } units;
+
+    enum itemclass class;
+    union {
+        struct weapondata_t weapondata;
+        struct armordata_t armordata;
+        struct tradegood_data tradegood;
+    } data;
+};
+
+struct aiplayer_t {
+    enum aiclass { AI_FRIENDLY, AI_NEUTRAL, AI_ENEMY } class;
+    uint hp;
+
+    struct item_t *armor;
+    struct itme_t *weapon1;
+    struct item_t *weapon2;
+    struct item_t *goods;
+};
+
+struct player_t {
+    /* base hp */
+    uint hp;
+    uint credits; /* tenths of credits */
+
+    /* armor takes damage first, then the player */
+    struct item_t *armor;
+    struct item_t *weapon1;
+    struct item_t *weapon2;
+    struct item_t *goods;
+};
+
+struct userdata_t {
+    struct player_t player;
+    void *iface_data;
 };
 
 extern sprite_t obstacles[8], random_obstacles[4], enemies[1];

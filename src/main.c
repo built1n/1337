@@ -39,16 +39,7 @@ void myfclose(void *filehandle)
     fclose(filehandle);
 }
 
-void tiledata_write(void *filehandle, void *userdata)
-{
-}
-
-void tiledata_read(void *filehandle, void **userdata)
-{
-
-}
-
-static void mygen(struct block_t *block)
+static void mygen(struct world_t *world, struct block_t *block)
 {
     /* re-seed the RNG to make blocks the same across games */
     mysrand(block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
@@ -72,6 +63,15 @@ static void mygen(struct block_t *block)
             block->tiles[BLOCK_DIM-1][y].sprite = SPRITE_TREE1;
         }
     }
+
+    /* place a store */
+    uint8_t x = myrand() % BLOCK_DIM;
+    uint8_t y = myrand() % BLOCK_DIM;
+    printf("place store at %d,%d\n",x,y);
+    block->tiles[x][y].sprite = SPRITE_STORE1;
+
+    /* add an overlay */
+    l_addoverlay(world, block->coords.x, block->coords.y);
 
 #if 0
     /* add an animated enemy */

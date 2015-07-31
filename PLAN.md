@@ -1,13 +1,13 @@
 # Plan
 
-This game idea is heavily inspired by the original Elite.
+This game idea draws inspiration from the Legend of Zelda and Elite.
 None of this is implemented yet.
 
 ## Background
 
 You live in the land of Alacron in the year of 238 ABA. The period of relative peace under King Ajax IV has come to an abrupt end with his death under mysterious circumstances.
 You are nobody. For now, at least. You've scaped together enough cash to buy some half-decent weapons and armor, and maybe one day fame and fortune could be yours.
-But now, the once well-patrolled roads are now teeming with pirate bands, ready to harass the unprepared trader, and unfriendly neighbors are vying for power.
+But now, the once well-patrolled roads are now teeming with pirate bands, ready to harass the ill-prepared trader, and unfriendly neighbors are vying for power.
 
 The currency in Alacron is the Alacronian Credit (Cr.).
 You begin with 500 credits.
@@ -70,6 +70,8 @@ The given price is the LOWER extreme. Prices for the same good can vary dramatic
  - Backpack (100 Cr.): increases the maximum weight which can be carried to 40 kg.
 
 ## Game Mechanics
+
+Base HP (no armor) is 10.
 
 ### Towns
 

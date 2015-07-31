@@ -21,8 +21,19 @@
 
 #define SIGN(x) ( ((x) < 0) ? -1 : 1)
 
+#define CHUNK_SIZE 1024
+
+/* this structure is used to find the coordinates of the block
+   an overlay tile is in */
+struct overlay_chunk {
+    uint start;
+    struct coords_t tiles[CHUNK_SIZE]; /* set to -1, -1 to indicate empty */
+};
+
 struct l33t_data {
     genfunc_t genfunc;
     struct block_t *blocks;
     uint blocklen;
+    /* currently loaded chunk */
+    struct overlay_chunk chunk;
 };

@@ -39,22 +39,41 @@ struct camera_t {
 
 struct tile_t {
     sprite_t sprite;
+
     struct coords_t offset;
 
     sprite_t background;
+};
 
-    void *userdata;
+struct overlaytile_t {
+    uint id;
+
+    /* DO NOT modify _coords directly, use l_moveoverlay instead */
+    struct coords_t _coords;
+
+    struct coords_t offs;
+
+    sprite_t sprite;
+
+    struct overlaytile_t *next;
 };
 
 struct block_t {
-    struct tile_t tiles[BLOCK_DIM][BLOCK_DIM];
     struct coords_t coords;
+
+    struct tile_t tiles[BLOCK_DIM][BLOCK_DIM];
+
+    /* linked-list of overlay tiles in this block */
+    struct overlaytile_t *overlay;
+
     struct block_t *next;
 };
 
 /*
  * a structure of this type needs to be filled out
  * and assigned to world->interface
+ *
+ * each function called is passed the value of world->userdata
  */
 struct interface_t {
     /* drawing */
@@ -76,10 +95,6 @@ struct interface_t {
     int (*ferror)(void *filehandle);
     void (*fclose)(void *filehandle);
 
-    /* functions are called to read and write user data to and from disk */
-    void (*tiledata_write)(void *filehandle, void *userdata);
-    void (*tiledata_read)(void *filehandle, void **userdata);
-
     /* miscellaneous */
     void (*fatal)(const char *fmt, ...);
     ullong (*get_mstime)(void *userdata);
@@ -95,10 +110,11 @@ struct world_t {
 
     const struct interface_t *interface;
 
+    /* arbitrary, user-settable pointers */
     void *userdata;
 };
 
-typedef void (*genfunc_t)(struct block_t*);
+typedef void (*genfunc_t)(struct world_t*, struct block_t*);
 
 /* initializes a world context with the given resolution */
 void l_init(struct world_t*, uint window_w, uint window_h);
@@ -138,8 +154,25 @@ struct tile_t *l_gettile(struct world_t*, llong x, llong y);
  */
 struct block_t *l_getblock(struct world_t*, llong x, llong y);
 
+/*
+ * adds an overlay tile in the block (x,y) is in
+ *  - returns an integer identifier which can be used to access
+ *    the tile through l_getoverlay
+ */
+uint l_addoverlay(struct world_t*, llong x, llong y);
+
+/* returns a pointer to the overlay tile with the specified id */
+struct overlaytile_t *l_getoverlay(struct world_t*, uint id);
+
+/* moves an overlay to a certain tile */
+/* the offset needs to be set manualloy */
+void l_moveoverlay(struct world_t*, uint id, llong x, llong y);
+
+/* deletes an overlay tile, freeing memory for it */
+void l_deloverlay(struct world_t*, uint id);
+
 /* loads or generates the block starting at (x,y) if it is not already loaded */
-void l_loadblock(struct world_t*, llong x, llong y);
+struct block_t *l_loadblock(struct world_t*, llong x, llong y);
 
 /* purges blocks outside a certain distance from the camera */
 void l_purge(struct world_t*);

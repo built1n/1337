@@ -72,17 +72,6 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
     deflateEnd(&out);
     free(outbuf);
 
-    /* user data is written uncompressed */
-#if 1
-    for(int y = 0; y < BLOCK_DIM; ++y)
-    {
-        for(int x = 0; x < BLOCK_DIM; ++x)
-        {
-            interface->tiledata_write(f, block->tiles[x][y].userdata);
-        }
-    }
-#endif
-
     interface->fclose(f);
 }
 
@@ -176,17 +165,6 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     inflateEnd(&in);
     free(inbuf);
 
-#if 1
-    /* read user data */
-    for(int y = 0; y < BLOCK_DIM; ++y)
-    {
-        for(int x = 0; x < BLOCK_DIM; ++x)
-        {
-            interface->tiledata_read(f, &block->tiles[x][y].userdata);
-        }
-    }
-#endif
-
     interface->fclose(f);
     return block;
 }
@@ -276,7 +254,7 @@ void l_purge(struct world_t *world)
 void l_purgeall(struct world_t *world)
 {
     world->interface->printf("purging entire block list\n");
-    /* iterate over the block list and remove any blocks outside of the "local" range */
+    /* write every block to disk, and reload */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     while(iter)
@@ -295,29 +273,36 @@ void l_purgeall(struct world_t *world)
 
 static void block_add(struct world_t *world, struct block_t *block)
 {
-    block->next = ((struct l33t_data*)(world->privatedata))->blocks;
-    ((struct l33t_data*)(world->privatedata))->blocks = block;
-    ((struct l33t_data*)(world->privatedata))->blocklen++;
+    struct l33t_data *data = ((struct l33t_data*)world->privatedata);
+
+    block->next = data->blocks;
+    data->blocks = block;
+    data->blocklen++;
 }
 
-void l_loadblock(struct world_t *world, llong x, llong y)
+struct block_t *l_loadblock(struct world_t *world, llong x, llong y)
 {
-    if(l_getblock(world, x, y) == NULL)
+    struct block_t *ret = l_getblock(world, x, y);
+    if(ret == NULL)
     {
-        printf("found null block\n");
         /* first try getting it from disk */
-        struct block_t *block = block_load(world->interface, x, y);
-        if(block)
-            block_add(world, block);
+        ret = block_load(world->interface, x, y);
+        if(ret)
+            block_add(world, ret);
         else
         {
             /* it's not on disk, generate a new one */
             world->interface->printf("load failed.\n");
-            block = block_new(x, y);
+            ret = block_new(x, y);
+            /* add the block first to prevent an infinite loop
+               if the genfunc calls l_addoverlay */
+            block_add(world, ret);
+
             genfunc_t genfunc = ((struct l33t_data*)(world->privatedata))->genfunc;
             if(genfunc)
-                genfunc(block);
-            block_add(world, block);
+                genfunc(world, ret);
         }
     }
+
+    return ret;
 }

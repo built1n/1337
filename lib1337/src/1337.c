@@ -5,7 +5,8 @@ void l_init(struct world_t *world, uint w, uint h)
     l_resize(world, w, h);
     world->privatedata = malloc(sizeof(struct l33t_data));
     memset(world->privatedata, 0, sizeof(struct l33t_data));
-    ((struct l33t_data*)(world->privatedata))->genfunc = NULL;
+    memset(((struct l33t_data*)(world->privatedata))->chunk.tiles, 0xFF,
+           sizeof(((struct l33t_data*)(world->privatedata))->chunk.tiles));
 
     world->interface->printf(" *** 1337 Library Init ***\n");
     world->interface->printf("Window size: %lld x %lld tiles\n",

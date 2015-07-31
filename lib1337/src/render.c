@@ -39,6 +39,22 @@ void l_render(struct world_t *world)
             }
         }
 
+    /* draw overlay tiles */
+    /* for each block in the blocklist, try to render the overlay tiles */
+    /* TODO: optimize */
+    struct l33t_data *data = ((struct l33t_data*)world->privatedata);
+
+    struct block_t *block = data->blocks;
+    while(block)
+    {
+        struct overlaytile_t *iter = block->overlay;
+        while(iter)
+        {
+            iter = iter->next;
+        }
+        block = block->next;
+    }
+
     interface->draw_text(userdata, 0, 0, "pos: (%lld, %lld) + (%lld, %lld)",
                          camera->pos.x, camera->pos.y,
                          camera->offset.x, camera->offset.y);
