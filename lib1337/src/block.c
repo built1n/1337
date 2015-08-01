@@ -254,7 +254,7 @@ void l_purge(struct world_t *world)
 void l_purgeall(struct world_t *world)
 {
     world->interface->printf("purging entire block list\n");
-    /* write every block to disk, and reload */
+    /* write every block to disk */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
     while(iter)

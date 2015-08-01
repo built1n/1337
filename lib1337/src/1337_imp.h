@@ -35,5 +35,5 @@ struct l33t_data {
     struct block_t *blocks;
     uint blocklen;
     /* currently loaded chunk */
-    struct overlay_chunk chunk;
+    struct overlay_chunk *chunk;
 };

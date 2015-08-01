@@ -72,9 +72,7 @@ static void mygen(struct world_t *world, struct block_t *block)
 
     /* add an overlay */
     uint id = l_addoverlay(world, block->coords.x, block->coords.y);
-    printf("overlay id: %d\n", id);
-    l_deloverlay(world, id);
-
+    l_getoverlay(world, id)->sprite = SPRITE_PLAYER;
 #if 0
     /* add an animated enemy */
     uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;
@@ -89,6 +87,14 @@ static void mygen(struct world_t *world, struct block_t *block)
     node->coords.y = enemy_y;
     block->anim_tiles = node;
 #endif
+}
+
+void *cleanup_arg;
+
+void game_cleanup(void)
+{
+    l_purgeoverlay(cleanup_arg);
+    l_purgeall(cleanup_arg);
 }
 
 int main(int argc, char *argv[])
@@ -109,6 +115,9 @@ int main(int argc, char *argv[])
 
     struct world_t *world = malloc(sizeof(struct world_t));
     memset(world, 0, sizeof(*world));
+
+    cleanup_arg = world;
+    atexit(game_cleanup);
 
     /*
      * TinyCC doesn't distinguish between struct* and enum* namespaces,

@@ -51,7 +51,7 @@ struct overlaytile_t {
     /* DO NOT modify _coords directly, use l_moveoverlay instead */
     struct coords_t _coords;
 
-    struct coords_t offs;
+    struct coords_t offset;
 
     sprite_t sprite;
 
@@ -177,8 +177,11 @@ struct block_t *l_loadblock(struct world_t*, llong x, llong y);
 /* purges blocks outside a certain distance from the camera */
 void l_purge(struct world_t*);
 
-/* purges ALL blocks to disk */
+/* purges all blocks to disk */
 void l_purgeall(struct world_t*);
+
+/* purges the chunk list, needed for overlay consistency across saves */
+void l_purgeoverlay(struct world_t*);
 
 /* renders the visible tiles to screen via calls to draw_sprite */
 void l_render(struct world_t*);

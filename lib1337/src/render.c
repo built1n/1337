@@ -47,9 +47,17 @@ void l_render(struct world_t *world)
     struct block_t *block = data->blocks;
     while(block)
     {
+        llong b_rx = 32 * (camera->pos.x - block->coords.x) + cam_offs.x;
+        llong b_ry = 32 * (camera->pos.y - block->coords.y) - cam_offs.y;
         struct overlaytile_t *iter = block->overlay;
         while(iter)
         {
+            llong rx = b_rx + 32 * iter->_coords.x - iter->offset.x;
+            llong ry = b_ry + 32 * iter->_coords.y + iter->offset.y;
+            printf("drawing overlay sprite at %d, %d\n", rx, ry);
+            interface->draw_sprite(userdata,
+                                   rx, ry,
+                                   iter->sprite);
             iter = iter->next;
         }
         block = block->next;
