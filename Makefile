@@ -25,7 +25,7 @@ LIBSRC := $(wildcard lib1337/src/*.c)
 LIBOBJ := $(LIBSRC:.c=.o)
 LIBINC := $(wildcard lib1337/include/*.h) $(wildcard lib1337/src/*.h)
 
-all: $(PROGRAM_NAME) $(PROGRAM_NAME)_static
+all: Makefile $(PROGRAM_NAME) $(PROGRAM_NAME)_static
 
 $(PROGRAM_NAME): Makefile $(OBJ) $(HEADERS) lib1337/src/lib1337.so
 	@echo "LD $@"
