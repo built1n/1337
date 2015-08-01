@@ -73,6 +73,7 @@ static void mygen(struct world_t *world, struct block_t *block)
     /* add an overlay */
     uint id = l_addoverlay(world, block->coords.x, block->coords.y);
     l_getoverlay(world, id)->sprite = SPRITE_PLAYER;
+
 #if 0
     /* add an animated enemy */
     uint enemy_x = myrand() % BLOCK_DIM, enemy_y = myrand() % BLOCK_DIM;

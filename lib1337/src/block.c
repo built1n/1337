@@ -14,8 +14,6 @@ static struct block_t *block_new(llong x, llong y)
     return block;
 }
 
-#define GZIP_CHUNK 0x1000
-
 static void block_swapout(const struct interface_t *interface, struct block_t *block)
 {
     interface->printf("swap out (%lld, %lld)\n",
@@ -47,30 +45,20 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
     interface->fwrite(&marker, sizeof(marker), f);
 #endif
 
-    unsigned char *outbuf = malloc(GZIP_CHUNK);
-
-    z_stream out;
-    out.zalloc = Z_NULL;
-    out.zfree = Z_NULL;
-    out.opaque = Z_NULL;
-    if(deflateInit(&out, Z_DEFAULT_COMPRESSION) != Z_OK)
+    /* write the block's overlay tiles */
+    struct overlaytile_t *iter = block->overlay;
+    while(iter)
     {
-        interface->fatal("failed to open gzip stream for output");
+        interface->fwrite(iter, sizeof(*iter), f);
+        iter = iter->next;
     }
 
-    out.avail_in = sizeof(block->tiles);
-    out.next_in = (uchar*)block->tiles;
-    do {
-        out.avail_out = GZIP_CHUNK;
-        out.next_out = outbuf;
-        assert(deflate(&out, Z_FINISH) != Z_STREAM_ERROR);
-        size_t have = GZIP_CHUNK - out.avail_out;
-        if(interface->fwrite(outbuf, have, f) != have || interface->ferror(f))
-            interface->fatal("file I/O error");
-    } while (out.avail_in > 0);
+    /* now the sentinel */
+    struct overlaytile_t sentinel;
+    sentinel.id = -1;
+    interface->fwrite(&sentinel, sizeof(sentinel), f);
 
-    deflateEnd(&out);
-    free(outbuf);
+    l_gz_write(interface,f, block->tiles, sizeof(block->tiles));
 
     interface->fclose(f);
 }
@@ -119,53 +107,33 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     }
 #endif
 
-    z_stream in;
-    in.zalloc = Z_NULL;
-    in.zfree = Z_NULL;
-    in.opaque = Z_NULL;
-    in.avail_in = 0;
-    in.next_in = Z_NULL;
+    /* read the linked list of overlay tiles */
+    /* note that order doesn't matter here */
 
-    if(inflateInit(&in) != Z_OK)
-        interface->fatal("failed to open gzip stream");
+    /* rebuild the linked list */
 
-    unsigned char *inbuf = malloc(GZIP_CHUNK);
-    int ret;
-    uchar *out = (uchar*)block->tiles;
-    size_t avail = sizeof(block->tiles);
-
-    do {
-        in.avail_in = interface->fread(inbuf, GZIP_CHUNK, f);
-        if(!in.avail_in || interface->ferror(f))
+    struct overlaytile_t *prev = NULL;
+    printf("loading linked-list of overlay tiles\n");
+    while(1)
+    {
+        struct overlaytile_t *ov = malloc(sizeof(struct overlaytile_t));
+        if(interface->fread(ov, sizeof(*ov), f) != sizeof(*ov) || ov->id == (uint)-1)
             break;
-        in.next_in = inbuf;
+        printf("reading one overlay tile\n");
+        ov->next = NULL;
+        if(prev)
+        {
+            prev->next = ov;
+        }
+        else
+        {
+            block->overlay = ov;
+        }
+        prev = ov;
+    }
 
-        do {
-            in.avail_out = MIN(GZIP_CHUNK, avail);
-            in.next_out = out;
-            ret = inflate(&in, Z_NO_FLUSH);
+    l_gz_read(interface, f, block->tiles, sizeof(block->tiles));
 
-            assert(ret != Z_STREAM_ERROR);
-
-            switch(ret)
-            {
-            case Z_NEED_DICT:
-                ret = Z_DATA_ERROR; /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR:
-                inflateEnd(&in);
-                interface->fatal("gzip memory error");
-            }
-            size_t have = GZIP_CHUNK - in.avail_out;
-            out += have;
-            avail -= have;
-        } while (in.avail_out == 0);
-    } while (ret != Z_STREAM_END);
-
-    inflateEnd(&in);
-    free(inbuf);
-
-    interface->fclose(f);
     return block;
 }
 

@@ -37,3 +37,6 @@ struct l33t_data {
     /* currently loaded chunk */
     struct overlay_chunk *chunk;
 };
+
+void l_gz_write(const struct interface_t*, void *fd, const void*, size_t);
+size_t l_gz_read(const struct interface_t*, void *fd, void*, size_t max);
