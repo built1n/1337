@@ -51,7 +51,7 @@ static void chunk_swapin(const struct interface_t *iface, struct overlay_chunk *
 
 void l_purgeoverlay(struct world_t *world)
 {
-    chunk_swapout(world->interface, ((struct l33t_data*)world->privatedata)->chunk);
+    chunk_swapout(world->interface, &((struct l33t_data*)world->privatedata)->chunk);
 }
 
 uint l_addoverlay(struct world_t *world, llong x, llong y)
