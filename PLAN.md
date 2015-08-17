@@ -1,13 +1,13 @@
 # Plan
 
 This game idea draws inspiration from the Legend of Zelda and Elite.
-None of this is implemented yet.
+None of this is implemented yet, and may be subject to change.
 
 ## Background
 
 You live in the land of Alacron in the year of 238 ABA. The period of relative peace under King Ajax IV has come to an abrupt end with his death under mysterious circumstances.
 You are nobody. For now, at least. You've scaped together enough cash to buy some half-decent weapons and armor, and maybe one day fame and fortune could be yours.
-But now, the once well-patrolled roads are now teeming with pirate bands, ready to harass the ill-prepared trader, and unfriendly neighbors are vying for power.
+But now, the once well-policed roads are now teeming with pirate bands, ready to harass the ill-prepared trader, and unfriendly neighbors are vying for power.
 
 The currency in Alacron is the Alacronian Credit (Cr.).
 You begin with 500 credits.
@@ -63,7 +63,7 @@ The given price is the LOWER extreme. Prices for the same good can vary dramatic
  - Books (5 Cr./kg >)
  - Gunpowder (5 Cr./g >)
  - Luxuries (8 Cr./kg >)
- - Gadgets (10 Cr./kg >)
+ - Machinery (10 Cr./kg >)
 
 ### "Upgrades"
 
@@ -76,9 +76,35 @@ Base HP (no armor) is 10.
 ### Towns
 
 In the land of Alacron, there are many towns, each with a technology level ranging from 1 to 10 (inclusive).
-In a town, you can buy weapons, armor, and trade for goods.
-The technology level of a town determines what goods are available for purchase, as well as the prices for those goods: the higher the technology level, the lower the prices.
+In a town, you can buy or sell weapons, armor, and goods.
+The technology level of a town determines what items are available for purchase, as well as their prices: the higher the technology level, the lower the prices.
 
-## Goods
+### Goods
 
 Available for purchase in towns are GOODS. The price of a good depends on the technology level of the town and a random "fluctuation value."
+Some goods serve a practical value, such as food. However, others are used solely for trading.
+The technology level of a town also influences the prices and availabilty of goods.
+
+### Trading
+
+Goods can be traded between towns for profit.
+
+### Reputation
+
+There are two reputation paths: the lawful path, and the criminal path.
+You may move between the two at will by commiting crimes, or paying fines.
+
+You reputation depends on how many kills you have, and your legal status.
+
+<code>
+0             1             10          25       50        100           200           500           2000
+
+          |-- Law-breaker - Ruffian --- Bandit - Pirate -- Pirate Boss - Gangster ---- Gang Leader - <b>***** Fearsome One *****</b>
+Neutral --|
+          |-- Law-abider -- Vigilante - Hunter - Deputy -- Sheriff ----- Enforcer ---- Executioner - <b>***** Great One *****</b>
+</code>
+
+### Combat
+
+On the roads are traders, pirate bands, and the occasional cop.
+You may engage in combat with any of them, and this will affect your reputation.
