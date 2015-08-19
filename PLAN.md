@@ -96,13 +96,13 @@ You may move between the two at will by commiting crimes, or paying fines.
 
 You reputation depends on how many kills you have, and your legal status.
 
-<code>
+<pre>
 0             1             10          25       50        100           200           500           2000
 
-          |-- Law-breaker - Ruffian --- Bandit - Pirate -- Pirate Boss - Gangster ---- Gang Leader - <b>***** Fearsome One *****</b>
+          |-- Law-breaker - Ruffian --- Bandit - Pirate -- Pirate Boss - Gangster ---- Gang Leader - *Fearsome One*
 Neutral --|
-          |-- Law-abider -- Vigilante - Hunter - Deputy -- Sheriff ----- Enforcer ---- Executioner - <b>***** Great One *****</b>
-</code>
+          |-- Law-abider -- Vigilante - Hunter - Deputy -- Sheriff ----- Enforcer ---- Executioner - *Great One*
+<pre>
 
 ### Combat
 

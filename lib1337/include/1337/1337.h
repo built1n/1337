@@ -8,6 +8,15 @@
  * "world" - a list of blocks and other data
  */
 
+/* The library is designed to manage and render three types of objects:
+ * - tiles
+ * - overlay tiles
+ * - messages
+ *
+ * all of these are added to the game context, and rendered with a call to
+ * l_render().
+ */
+
 #ifndef LEET_EXPORT_HEADER
 #define LEET_EXPORT_HEADER
 
@@ -45,8 +54,16 @@ struct tile_t {
     sprite_t background;
 };
 
+#define LAYER_TOP 0
+#define LAYER_BOTTOM 1024
+
 struct overlaytile_t {
     uint id;
+
+    /* [ LAYER_TOP, LAYER_BOTTOM ) */
+    /* NOTE: layers only apply within the tile the overlay falls on */
+    /* the overlapping behavior with adjacent overlay tiles is undefined */
+    uint layer;
 
     /* DO NOT modify _coords directly, use l_moveoverlay instead */
     struct coords_t _coords;
@@ -116,83 +133,47 @@ struct world_t {
 
 typedef void (*genfunc_t)(struct world_t*, struct block_t*);
 
-/* initializes a world context with the given resolution */
-void l_init(struct world_t*, uint window_w, uint window_h);
 
-/*
- * should be called on camera resize
- *  - sets camera size to fit the new resolution
- *  - also generates blocks in view of the new camera
- */
-void l_resize(struct world_t*, uint new_w, uint new_h);
+/******************************************************************************/
+/************************ BEGIN FUNCTION DECLARATIONS *************************/
+/******************************************************************************/
 
-/*
- * moves the camera by an offset in PIXELS
- *  - assumes that tilesize = 32px
- */
-void l_movecam(struct world_t*, llong dx, llong dy);
 
-/* sets the block generation function */
-void l_setgen(struct world_t*, genfunc_t);
+/*********** startup/shutdown *************/
+void l_init(struct world_t*, uint window_w, uint window_h);                      // initializes a world context with the given resolution
+void l_free(struct world_t*);                                                    // frees the world context and associated memory
 
-/*
- * generates or loads all blocks in view of the camera
- *  - attempts to purge the block list when done
- */
-void l_gen(struct world_t*);
+/************ generation *************/
+void l_setgen(struct world_t*, genfunc_t);                                       // sets the block generation function
+void l_gen(struct world_t*);                                                     // loads/generates blocks in view of the camera, then tries to purge blocklist
 
-/*
- * returns to a pointer to a tile at (x,y)
- *  - returns NULL if the block the tile is in is not loaded in memory
- */
-struct tile_t *l_gettile(struct world_t*, llong x, llong y);
+/*************** camera ****************/
+void l_resize(struct world_t*, uint new_w, uint new_h);                          // resize camera to a new screen size in pixels
+void l_movecam(struct world_t*, llong dx, llong dy);                             // moves the camera by PIXELS
 
-/*
- * returns a pointer to the block starting at (x,y)
- *  - both x and y MUST be multiples of 64
- *  - returns NULL if (x,y) does not refer to a valid block
- */
-struct block_t *l_getblock(struct world_t*, llong x, llong y);
+/************* tile/block access **************/
+struct tile_t *l_gettile(struct world_t*, llong x, llong y);                     // returns a pointer to the tile at (x,y) or NULL if it's not in RAM
+struct block_t *l_getblock(struct world_t*, llong x, llong y);                   // returns a pointer to the block at exactly (x,y) or NULL if invalid or not loaded
+struct block_t *l_loadblock(struct world_t*, llong x, llong y);                  // loads or generates the block at exactly (x,y), returns pointer to block
 
-/*
- * adds an overlay tile in the block (x,y) is in
- *  - returns an integer identifier which can be used to access
- *    the tile through l_getoverlay
- */
-uint l_addoverlay(struct world_t*, llong x, llong y);
+/*************** overlay ****************/
+uint l_addoverlay(struct world_t*, llong x, llong y);                            // returns the id of a new overlay tile at (x,y)
+struct overlaytile_t *l_getoverlay(struct world_t*, uint id);                    // gets the overlay with the specified id
+void l_moveoverlay(struct world_t*, uint id, llong x, llong y);                  // moves an overlay to a tile, offset is untouched
+void l_deloverlay(struct world_t*, uint id);                                     // deletes an overlay tile, freeing its memory
 
-/* returns a pointer to the overlay tile with the specified id */
-struct overlaytile_t *l_getoverlay(struct world_t*, uint id);
+/************ block management *************/
+void l_purge(struct world_t*);                                                   // swaps out blocks not visible to the camera
+void l_purgeall(struct world_t*);                                                // swaps out all blocks out to disk
+void l_purgeoverlay(struct world_t*);                                            // saves the chunk list to disk, needed for overlays
 
-/* moves an overlay to a certain tile */
-/* the offset needs to be set manualloy */
-void l_moveoverlay(struct world_t*, uint id, llong x, llong y);
+/*********** messages *************/
+void l_writemessage(struct world_t*, const char*);
 
-/* deletes an overlay tile, freeing memory for it */
-void l_deloverlay(struct world_t*, uint id);
+/*********** rendering ************/
+void l_render(struct world_t*);                                                  // renders all tiles, overlays, and messages
 
-/* loads or generates the block starting at (x,y) if it is not already loaded */
-struct block_t *l_loadblock(struct world_t*, llong x, llong y);
-
-/* purges blocks outside a certain distance from the camera */
-void l_purge(struct world_t*);
-
-/* purges all blocks to disk */
-void l_purgeall(struct world_t*);
-
-/* purges the chunk list, needed for overlay consistency across saves */
-void l_purgeoverlay(struct world_t*);
-
-/* renders the visible tiles to screen via calls to draw_sprite */
-void l_render(struct world_t*);
-
-/* frees the world context and associated memory */
-void l_free(struct world_t*);
-
-/*
- * returns a pointer to a statically allocated string containing the library version
- *  - the string MUST match LEET_VERSION exactly
- */
-const char *l_version(void);
+/********** miscellaneous **********/
+const char *l_version(void);                                                     // returns a pointer to a string containing the library version, should match LEET_VERSION
 
 #endif
