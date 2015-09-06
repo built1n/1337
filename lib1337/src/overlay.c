@@ -14,14 +14,10 @@ static void chunk_swapout(const struct interface_t *iface, struct overlay_chunk 
 
 static void chunk_swapin(const struct interface_t *iface, struct overlay_chunk **chunk, uint want)
 {
-    printf("chunk_swapin %x, %d\n", chunk, want);
-    printf("rounded: %d\n", ROUND_CHUNK(want));
-    printf("*chunk: %d\n", *chunk);
     if(!*chunk)
     {
         /* chunk is uninitialized */
         *chunk = malloc(sizeof(**chunk));
-        printf("allocated memory for **chunk\n");
         goto try_load;
     }
     else
@@ -47,7 +43,6 @@ static void chunk_swapin(const struct interface_t *iface, struct overlay_chunk *
         }
         else
         {
-            iface->printf("swapping in chunk from disk\n");
             iface->fread(*chunk, sizeof(**chunk), fd);
             assert((*chunk)->start == ROUND_CHUNK(want));
             iface->fclose(fd);
@@ -65,7 +60,7 @@ void l_purgeoverlay(struct world_t *world)
 
 uint l_addoverlay(struct world_t *world, llong x, llong y, uint layer)
 {
-    printf("l_addoverlay\n");
+    world->interface->printf(">> l_addoverlay %d, %d, layer %d\n", x, y, layer);
     llong bx = ROUND_BLOCK(x), by = ROUND_BLOCK(y);
     struct block_t *block = l_getblock(world, bx, by);
     if(!block)
@@ -95,7 +90,6 @@ uint l_addoverlay(struct world_t *world, llong x, llong y, uint layer)
     {
         if(ov->layer >= iter->layer)
         {
-            printf("inserting overlay in block list\n");
             if(!last)
                 block->overlay = ov;
             else
@@ -125,19 +119,17 @@ uint l_addoverlay(struct world_t *world, llong x, llong y, uint layer)
                 return ov->id;
             }
         }
+        printf("exhausted 1024 entries\n");
         chunk_swapin(world->interface, &data->chunk, data->chunk->start + CHUNK_SIZE);
     }
 }
 
 struct overlaytile_t *l_getoverlay(struct world_t *world, uint id)
 {
-    printf("l_getoverlay %x, %d\n", world, id);
     /* load the overlay's chunk */
     struct l33t_data *data = ((struct l33t_data*)world->privatedata);
 
     chunk_swapin(world->interface, &data->chunk, id);
-
-    printf("swap in chunk\n");
 
     uint rem = id - ROUND_CHUNK(id);
 
@@ -145,7 +137,7 @@ struct overlaytile_t *l_getoverlay(struct world_t *world, uint id)
     llong by = data->chunk->tiles[rem].y;
     if(bx == -1 && by == -1)
     {
-        printf("overlay not found in chunk\n");
+        world->interface->printf(">> overlay not found in chunk\n");
         return NULL;
     }
 
@@ -160,7 +152,7 @@ struct overlaytile_t *l_getoverlay(struct world_t *world, uint id)
         iter = iter->next;
     }
 
-    printf("could not find overlay in block list\n");
+    world->interface->printf(">> could not find overlay in block list\n");
 
     return NULL;
 }

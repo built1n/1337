@@ -41,6 +41,7 @@ void myfclose(void *filehandle)
 
 static void mygen(struct world_t *world, struct block_t *block)
 {
+    printf("> User generator called for block %lld, %lld\n", block->coords.x, block->coords.y);
     /* re-seed the RNG to make blocks the same across games */
     mysrand(block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
 
@@ -67,18 +68,15 @@ static void mygen(struct world_t *world, struct block_t *block)
     /* place a store */
     uint8_t x = myrand() % BLOCK_DIM;
     uint8_t y = myrand() % BLOCK_DIM;
-    printf("place store at %d,%d\n",x,y);
     block->tiles[x][y].sprite = SPRITE_STORE1;
 
     /* add an overlay */
-    for(int i = 0; i < 2; ++i)
-    {
-        uint id = l_addoverlay(world, block->coords.x + i, block->coords.y + i, 0);
-        printf("sprite id is %d\n", id);
-        struct overlaytile_t *ov = l_getoverlay(world, id);
-        printf("ov is %x\n", ov);
-        ov->sprite = SPRITE_PLAYER;
-    }
+
+    /* When generating a block, be careful not to add overlays outside of the
+     * block being generated. Otherwise, the generator might be called recursively */
+    uint id = l_addoverlay(world, block->coords.x + 32, block->coords.y + 32, 0);
+    struct overlaytile_t *ov = l_getoverlay(world, id);
+    ov->sprite = SPRITE_PLAYER;
 
 #if 0
     /* add an animated enemy */
