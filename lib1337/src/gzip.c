@@ -23,7 +23,7 @@ void l_gz_write(const struct interface_t *interface, void *f, const void *buf, s
         assert(deflate(&out, Z_FINISH) != Z_STREAM_ERROR);
         size_t have = GZIP_CHUNK - out.avail_out;
         if(interface->fwrite(outbuf, have, f) != have || interface->ferror(f))
-            interface->fatal("file I/O error");
+            interface->fatal("File I/O error");
     } while (out.avail_in > 0);
 
     deflateEnd(&out);
@@ -48,9 +48,9 @@ size_t l_gz_read(const struct interface_t *interface, void *f, void *buf, size_t
     size_t avail = max, total = 0;
 
     do {
-        printf("l_gz_read processing chunk of compressed data...\n");
+        interface->logf(LOG_DEBUG, "l_gz_read processing chunk of compressed data...\n");
         in.avail_in = interface->fread(inbuf, GZIP_CHUNK, f);
-        printf("have %d bytes\n", in.avail_in);
+        interface->logf(LOG_DEBUG, "have %d bytes\n", in.avail_in);
         if(!in.avail_in)
             break;
         in.next_in = inbuf;

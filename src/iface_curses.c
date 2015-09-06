@@ -72,8 +72,9 @@ static ullong my_mstime(void *userdata)
     return ms;
 }
 
-int dummy_printf(const char *fmt, ...)
+int dummy_printf(int level, const char *fmt, ...)
 {
+    (void) level;
     (void) fmt;
     return 0;
 }

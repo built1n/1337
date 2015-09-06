@@ -112,6 +112,26 @@ static ullong mytime(void *userdata)
     return SDL_GetTicks();
 }
 
+#define LOG_LEVEL LOG_DEBUG
+
+static int mylogf(int level, const char *fmt, ...)
+{
+    if(level <= LOG_LEVEL)
+    {
+        for(int i = 0; i < level; ++i)
+        {
+            putchar('>');
+        }
+        if(level)
+            putchar(' ');
+        va_list ap;
+        va_start(ap, fmt);
+        vprintf(fmt, ap);
+        va_end(ap);
+    }
+    return 0;
+}
+
 const struct interface_t iface_sdl2 = {
     draw_clear,
     draw_sprite,
@@ -124,7 +144,7 @@ const struct interface_t iface_sdl2 = {
     myfclose,
     fatal,
     mytime,
-    printf
+    mylogf
 };
 
 void sdl2_update(struct world_t *world)

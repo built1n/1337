@@ -16,8 +16,8 @@ static struct block_t *block_new(llong x, llong y)
 
 static void block_swapout(const struct interface_t *interface, struct block_t *block)
 {
-    interface->printf("swap out (%lld, %lld)\n",
-                      block->coords.x, block->coords.y);
+    interface->logf(LOG_DEBUG, "swap out (%lld, %lld)\n",
+                    block->coords.x, block->coords.y);
     char buf[64];
     snprintf(buf, sizeof(buf), "%016llx%016llx.block",
              block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
@@ -28,14 +28,14 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
     struct anim_tilelist *iter = block->anim_tiles;
     while(iter)
     {
-        interface->printf("writing anim tile data record\n");
+        interface->logf(LOG_DEBUG, "writing anim tile data record\n");
         /* FIXME: assumes sizeof(llong) = 8 */
         unsigned char buf[16];
         assert(sizeof(llong) * 2 == 16);
         memcpy(buf, &iter->coords.x, sizeof(llong));
         memcpy(buf + 8, &iter->coords.y, sizeof(llong));
         if(interface->fwrite(buf, sizeof(buf), f) != sizeof(buf) || interface->ferror(f))
-            interface->fatal("file I/O error");
+            interface->fatal("File I/O error");
         iter = iter->next;
     }
 
@@ -65,7 +65,7 @@ static void block_swapout(const struct interface_t *interface, struct block_t *b
 
 static struct block_t *block_load(const struct interface_t *interface, llong x, llong y)
 {
-    interface->printf("load block %lld, %lld\n", x, y);
+    interface->logf(LOG_DEBUG, "load block %lld, %lld\n", x, y);
     char filename[64];
     snprintf(filename, sizeof(filename), "%016llx%016llx.block",
              x / BLOCK_DIM, y / BLOCK_DIM);
@@ -83,7 +83,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     {
         assert(sizeof(llong) * 2 == 16);
         if(interface->fread(buf, sizeof(buf), f) != sizeof(buf) || interface->ferror(f))
-            interface->fatal("file I/O error");
+            interface->fatal("File I/O error");
         struct anim_tilelist *node = malloc(sizeof(struct anim_tilelist));
         node->next = block->anim_tiles;
         node->coords.x = *((llong*)buf);
@@ -92,7 +92,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         if(node->coords.x == 0x7FFFFFFFFFFFFFFF &&
            node->coords.y == 0x7FFFFFFFFFFFFFFF)
         {
-            interface->printf("encountered sentinel value\n");
+            interface->logf(LOG_DEBUG, "encountered sentinel value\n");
             free(node);
             break;
         }
@@ -102,7 +102,7 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
         assert(node->coords.y < BLOCK_DIM);
         assert(node->coords.y >= 0);
 
-        interface->printf("reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
+        interface->logf(LOG_DEBUG, "reading anim tile data %lld %lld\n", node->coords.x, node->coords.y);
         block->anim_tiles = node;
     }
 #endif
@@ -113,13 +113,12 @@ static struct block_t *block_load(const struct interface_t *interface, llong x, 
     /* rebuild the linked list */
 
     struct overlaytile_t *prev = NULL;
-    printf("loading linked-list of overlay tiles\n");
+    interface->logf(LOG_DEBUG, "loading linked-list of overlay tiles\n");
     while(1)
     {
         struct overlaytile_t *ov = malloc(sizeof(struct overlaytile_t));
         if(interface->fread(ov, sizeof(*ov), f) != sizeof(*ov) || ov->id == (uint)-1)
             break;
-        printf("reading one overlay tile\n");
         ov->next = NULL;
         if(prev)
         {
@@ -190,7 +189,7 @@ void l_purge(struct world_t *world)
     /* determine if the length of the block list exceeds a threshold */
     if(CEIL((local_x * local_y) / (BLOCK_DIM * BLOCK_DIM)) < ((struct l33t_data*)(world->privatedata))->blocklen)
     {
-        world->interface->printf("purging block list\n");
+        world->interface->logf(LOG_INFO, "Purging block list\n");
         while(iter)
         {
             /* determine if all or part of the block is in view */
@@ -221,7 +220,7 @@ void l_purge(struct world_t *world)
 
 void l_purgeall(struct world_t *world)
 {
-    world->interface->printf("purging entire block list\n");
+    world->interface->logf(LOG_INFO, "Purging entire block list\n");
     /* write every block to disk */
     struct block_t *iter = ((struct l33t_data*)(world->privatedata))->blocks;
     struct block_t *prev = NULL;
@@ -260,16 +259,19 @@ struct block_t *l_loadblock(struct world_t *world, llong x, llong y)
         else
         {
             /* it's not on disk, generate a new one */
-            world->interface->printf("load failed.\n");
+            world->interface->logf(LOG_DEBUG, "Loading block failed");
             ret = block_new(x, y);
 
             /* add the block first to prevent an infinite loop
-               in case the generator function calls l_addoverlay */
+               in case the generator function calls tries to access the block indirectly */
             block_add(world, ret);
 
             genfunc_t genfunc = ((struct l33t_data*)(world->privatedata))->genfunc;
             if(genfunc)
+            {
+                world->interface->logf(LOG_DEBUG, "Calling user generator function\n");
                 genfunc(world, ret);
+            }
         }
     }
 

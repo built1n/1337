@@ -41,7 +41,6 @@ void myfclose(void *filehandle)
 
 static void mygen(struct world_t *world, struct block_t *block)
 {
-    printf("> User generator called for block %lld, %lld\n", block->coords.x, block->coords.y);
     /* re-seed the RNG to make blocks the same across games */
     mysrand(block->coords.x / BLOCK_DIM, block->coords.y / BLOCK_DIM);
 

@@ -60,7 +60,7 @@ void l_purgeoverlay(struct world_t *world)
 
 uint l_addoverlay(struct world_t *world, llong x, llong y, uint layer)
 {
-    world->interface->printf(">> l_addoverlay %d, %d, layer %d\n", x, y, layer);
+    world->interface->logf(LOG_DEBUG, ">> l_addoverlay %d, %d, layer %d\n", x, y, layer);
     llong bx = ROUND_BLOCK(x), by = ROUND_BLOCK(y);
     struct block_t *block = l_getblock(world, bx, by);
     if(!block)
@@ -119,7 +119,7 @@ uint l_addoverlay(struct world_t *world, llong x, llong y, uint layer)
                 return ov->id;
             }
         }
-        printf("exhausted 1024 entries\n");
+        world->interface->logf(LOG_DEBUG, "exhausted 1024 entries\n");
         chunk_swapin(world->interface, &data->chunk, data->chunk->start + CHUNK_SIZE);
     }
 }
@@ -137,7 +137,7 @@ struct overlaytile_t *l_getoverlay(struct world_t *world, uint id)
     llong by = data->chunk->tiles[rem].y;
     if(bx == -1 && by == -1)
     {
-        world->interface->printf(">> overlay not found in chunk\n");
+        world->interface->logf(LOG_DEBUG, ">> overlay not found in chunk\n");
         return NULL;
     }
 
@@ -152,7 +152,7 @@ struct overlaytile_t *l_getoverlay(struct world_t *world, uint id)
         iter = iter->next;
     }
 
-    world->interface->printf(">> could not find overlay in block list\n");
+    world->interface->logf(LOG_DEBUG, ">> could not find overlay in block list\n");
 
     return NULL;
 }

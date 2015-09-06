@@ -113,7 +113,14 @@ struct interface_t {
     /* miscellaneous */
     void (*fatal)(const char *fmt, ...);
     ullong (*get_mstime)(void *userdata);
-    int (*printf)(const char *fmt, ...);
+
+#define LOG_ERROR   0
+#define LOG_WARNING 1
+#define LOG_INFO    2
+#define LOG_VERBOSE 3
+#define LOG_DEBUG   4
+
+    int (*logf)(int level, const char *fmt, ...);
 };
 
 struct world_t {
