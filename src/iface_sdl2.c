@@ -139,6 +139,16 @@ void sdl2_update(struct world_t *world)
         elapsed = 0;
         //animate_view(world);
     }
+    const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+    if(keystate[SDL_SCANCODE_LEFT])
+        l_movecam(world, -8, 0);
+    if(keystate[SDL_SCANCODE_RIGHT])
+        l_movecam(world, 8, 0);
+    if(keystate[SDL_SCANCODE_UP])
+        l_movecam(world, 0, 8);
+    if(keystate[SDL_SCANCODE_DOWN])
+        l_movecam(world, 0, -8);
+
     while(SDL_PollEvent(&ev))
     {
         before = SDL_GetTicks();
@@ -146,28 +156,6 @@ void sdl2_update(struct world_t *world)
         {
         case SDL_QUIT:
             exit(0);
-        case SDL_KEYDOWN:
-            switch(ev.key.keysym.sym)
-            {
-            case SDLK_LEFT:
-                l_movecam(world, -8, 0);
-                break;
-            case SDLK_RIGHT:
-                l_movecam(world, 8, 0);
-                break;
-            case SDLK_UP:
-                l_movecam(world, 0, 8);
-                break;
-            case SDLK_DOWN:
-                l_movecam(world, 0, -8);
-                break;
-#if 0
-            case SDLK_BACKQUOTE:
-                console_enter(world);
-                break;
-#endif
-            }
-            break;
         case SDL_WINDOWEVENT:
             switch(ev.window.event)
             {

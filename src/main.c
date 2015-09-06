@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
             case KEY_UP:
                 l_movecam(world, 0, 32);
                 break;
-            case KEY_DOWN:
+             case KEY_DOWN:
                 l_movecam(world, 0, -32);
                 break;
             }
