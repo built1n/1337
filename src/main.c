@@ -71,8 +71,14 @@ static void mygen(struct world_t *world, struct block_t *block)
     block->tiles[x][y].sprite = SPRITE_STORE1;
 
     /* add an overlay */
-    uint id = l_addoverlay(world, block->coords.x, block->coords.y, 0);
-    l_getoverlay(world, id)->sprite = SPRITE_PLAYER;
+    for(int i = 0; i < 2; ++i)
+    {
+        uint id = l_addoverlay(world, block->coords.x + i, block->coords.y + i, 0);
+        printf("sprite id is %d\n", id);
+        struct overlaytile_t *ov = l_getoverlay(world, id);
+        printf("ov is %x\n", ov);
+        ov->sprite = SPRITE_PLAYER;
+    }
 
 #if 0
     /* add an animated enemy */

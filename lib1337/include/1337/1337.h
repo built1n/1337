@@ -8,13 +8,11 @@
  * "world" - a list of blocks and other data
  */
 
-/* The library is designed to manage and render three types of objects:
+/* The library is designed to manage and render two types of tiles:
  * - tiles
  * - overlay tiles
- * - messages
  *
- * all of these are added to the game context, and rendered with a call to
- * l_render().
+ * Everything else, including game logic and I/O is the user's responsibility
  */
 
 #ifndef LEET_EXPORT_HEADER
@@ -157,18 +155,16 @@ struct block_t *l_getblock(struct world_t*, llong x, llong y);                  
 struct block_t *l_loadblock(struct world_t*, llong x, llong y);                  // loads or generates the block at exactly (x,y), returns pointer to block
 
 /*************** overlay ****************/
-uint l_addoverlay(struct world_t*, llong x, llong y);                            // returns the id of a new overlay tile at (x,y)
+uint l_addoverlay(struct world_t*, llong x, llong y, uint layer);                // returns the id of a new overlay tile at (x,y)
 struct overlaytile_t *l_getoverlay(struct world_t*, uint id);                    // gets the overlay with the specified id
-void l_moveoverlay(struct world_t*, uint id, llong x, llong y);                  // moves an overlay to a tile, offset is untouched
+void l_moveoverlay(struct world_t*, uint id, llong x, llong y);                  // moves an overlay tile to a specific location (in px)
+void l_shiftoverlay(struct world_t*, uint id, llong dx, llong dy);               // moves an overlay tile relative to it's current location (in px) NOTE: may be subject to overflow errors
 void l_deloverlay(struct world_t*, uint id);                                     // deletes an overlay tile, freeing its memory
 
 /************ block management *************/
 void l_purge(struct world_t*);                                                   // swaps out blocks not visible to the camera
 void l_purgeall(struct world_t*);                                                // swaps out all blocks out to disk
 void l_purgeoverlay(struct world_t*);                                            // saves the chunk list to disk, needed for overlays
-
-/*********** messages *************/
-void l_writemessage(struct world_t*, const char*);
 
 /*********** rendering ************/
 void l_render(struct world_t*);                                                  // renders all tiles, overlays, and messages

@@ -34,7 +34,7 @@ struct l33t_data {
     genfunc_t genfunc;
     struct block_t *blocks;
     uint blocklen;
-    /* currently loaded chunk */
+    /* currently loaded chunk, NULL if none */
     struct overlay_chunk *chunk;
 };
 
