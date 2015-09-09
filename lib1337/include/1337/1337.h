@@ -171,7 +171,7 @@ void l_deloverlay(struct world_t*, uint id);                                    
 /************ block management *************/
 void l_purge(struct world_t*);                                                   // swaps out blocks not visible to the camera
 void l_purgeall(struct world_t*);                                                // swaps out all blocks out to disk
-void l_purgeoverlay(struct world_t*);                                            // saves the chunk list to disk, needed for overlays
+void l_purgeoverlay(struct world_t*);                                            // saves the chunk list to disk, call on exit for overlays to work between sessions
 
 /*********** rendering ************/
 void l_render(struct world_t*);                                                  // renders all tiles, overlays, and messages

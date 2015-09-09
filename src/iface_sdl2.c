@@ -149,29 +149,23 @@ const struct interface_t iface_sdl2 = {
 
 void sdl2_update(struct world_t *world)
 {
-    static int elapsed = 0;
-    SDL_Event ev;
-    int before = SDL_GetTicks();
-    SDL_WaitEventTimeout(NULL, 100);
-    elapsed += SDL_GetTicks() - before;
-    if(elapsed >= 100)
-    {
-        elapsed = 0;
-        //animate_view(world);
-    }
+    static int last_update;
+    int now = SDL_GetTicks();
+    int dt = now - last_update + 1;
+#define MOVEMENT_SPEED 1
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     if(keystate[SDL_SCANCODE_LEFT])
-        l_movecam(world, -8, 0);
+        l_movecam(world, -MOVEMENT_SPEED * dt, 0);
     if(keystate[SDL_SCANCODE_RIGHT])
-        l_movecam(world, 8, 0);
+        l_movecam(world, MOVEMENT_SPEED * dt, 0);
     if(keystate[SDL_SCANCODE_UP])
-        l_movecam(world, 0, 8);
+        l_movecam(world, 0, MOVEMENT_SPEED * dt);
     if(keystate[SDL_SCANCODE_DOWN])
-        l_movecam(world, 0, -8);
+        l_movecam(world, 0, -MOVEMENT_SPEED * dt);
 
+    SDL_Event ev;
     while(SDL_PollEvent(&ev))
     {
-        before = SDL_GetTicks();
         switch(ev.type)
         {
         case SDL_QUIT:
@@ -187,11 +181,7 @@ void sdl2_update(struct world_t *world)
             }
             break;
         }
-        elapsed += SDL_GetTicks() - before;
-        if(elapsed >= 100)
-        {
-            elapsed = 0;
-            //animate_view(world);
-        } /* switch */
-    } /* while */
+    }
+
+    last_update = SDL_GetTicks();
 }
