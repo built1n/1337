@@ -8,7 +8,7 @@ OBJ := $(SRC:.c=.o)
 
 VERSION = v0.0.2
 
-GIT_VERSION := $(shell git describe --abbrev=8 --always --dirty)
+GIT_VERSION := $(shell git describe --abbrev=8 --always)
 
 PREFIX = /usr
 BINDIR = $(PREFIX)/bin
